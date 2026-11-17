@@ -1,5 +1,9 @@
 # Histórico de versões
 
+## 1.3.2 — 17/11/2026
+
+- **Carregando:** quando o iPhone está na tomada, a bateria fica verde com um raio, como no iPhone. Aviso quando chega a 100%. O iPhone não informa isso por Bluetooth, então o Native percebe pela porcentagem subindo (leva de 1 a 3 minutos para aparecer).
+
 ## 1.3.1 — 17/11/2026
 
 - **Barra de título no padrão do Windows:** minimizar, maximizar e fechar no canto direito. À esquerda ficam Não Perturbe, Ajustes (engrenagem) e Fixar.

@@ -121,7 +121,8 @@
                                    Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="150"
                                    ToolTip="{Binding StatusText}"/>
                         <!-- bateria -->
-                        <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center"
+                        <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center" Background="Transparent"
+                                    ToolTip="{Binding BatteryTooltip}"
                                     Visibility="{Binding HasBattery, Converter={StaticResource Vis}}">
                             <TextBlock Text="{Binding BatteryText}" Foreground="{DynamicResource LabelSecondary}"
                                        FontSize="12" Margin="0,0,5,0" VerticalAlignment="Center"/>
@@ -137,6 +138,9 @@
                                                 <DataTrigger Binding="{Binding BatteryLow}" Value="True">
                                                     <Setter Property="Background" Value="{DynamicResource SystemRed}"/>
                                                 </DataTrigger>
+                                                <DataTrigger Binding="{Binding ShowChargeBolt}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource SystemGreen}"/>
+                                                </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
@@ -144,6 +148,10 @@
                                 <Border Width="1.6" Height="4" HorizontalAlignment="Right" CornerRadius="0,1,1,0"
                                         Background="{DynamicResource BatteryOutline}"/>
                             </Grid>
+                            <!-- raio de carregando, como no iPhone -->
+                            <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}" FontSize="11" Margin="3,0,0,0"
+                                       VerticalAlignment="Center" Foreground="{DynamicResource SystemGreen}"
+                                       Visibility="{Binding ShowChargeBolt, Converter={StaticResource Vis}}"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>

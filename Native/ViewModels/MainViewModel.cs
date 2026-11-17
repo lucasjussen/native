@@ -134,6 +134,11 @@ public sealed class MainViewModel : ObservableObject
         UpdateSteps();
 
         _clock = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _clock.Tick += (_, _) =>
+        {
+            var before = _charge.State;
+            if (_charge.Tick(DateTime.Now) != before) RaiseCharge();
+        };
         _clock.Tick += (_, _) => { foreach (var g in Groups) g.RefreshTimes(); };
         _clock.Start();
 
@@ -204,6 +209,26 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public bool HasBattery => BatteryLevel.HasValue;
+
+    private readonly ChargeTracker _charge = new();
+    public bool IsCharging => _charge.State == ChargeState.Charging;
+    public bool IsFullyCharged => _charge.State == ChargeState.Full;
+    public bool ShowChargeBolt => IsCharging || IsFullyCharged;
+    public string BatteryTooltip => _charge.State switch
+    {
+        ChargeState.Charging => "Carregando (o Native percebe pela bateria subindo)",
+        ChargeState.Full => "Carregado",
+        _ => "Bateria do iPhone",
+    };
+
+    private void RaiseCharge()
+    {
+        Raise(nameof(IsCharging));
+        Raise(nameof(IsFullyCharged));
+        Raise(nameof(ShowChargeBolt));
+        Raise(nameof(BatteryTooltip));
+        Raise(nameof(BatteryText));
+    }
     public string BatteryText => BatteryLevel.HasValue ? $"{BatteryLevel}%" : "";
     public double BatteryFillWidth => Math.Max(1.5, (BatteryLevel ?? 0) / 100.0 * 16.5);
     public bool BatteryLow => BatteryLevel <= 20;
@@ -670,6 +695,8 @@ public sealed class MainViewModel : ObservableObject
         else
         {
             BatteryLevel = null;
+            _charge.Reset();
+            RaiseCharge();
         }
         UpdateSteps();
     }
@@ -694,8 +721,16 @@ public sealed class MainViewModel : ObservableObject
     private void OnBattery(int level)
     {
         int? previous = BatteryLevel;
+        var before = _charge.State;
+        var now = _charge.Update(level, DateTime.Now);
         BatteryLevel = level;
+        if (now != before) RaiseCharge();
         if (previous is null) return;
+
+        if (before != ChargeState.Charging && now == ChargeState.Charging)
+            Log.Info("Bateria", $"carregando ({previous}% → {level}%)");
+        if (before == ChargeState.Charging && now == ChargeState.Full)
+            RaiseSystemBanner("iPhone carregado", $"O {DeviceName} chegou a 100%.");
 
         foreach (var threshold in new[] { 20, 10 })
         {
@@ -1095,6 +1130,7 @@ public sealed class MainViewModel : ObservableObject
     }
 
     internal void SimulateBattery(int level) => OnBattery(level);
+    internal void SimulateCharging(int from, int to) { OnBattery(from); OnBattery(to); }
     internal void SimulateNowPlaying(NowPlaying? np) => OnNowPlaying(np);
     internal void SimulateMediaCommands(params MediaCommand[] commands) => OnMediaCommands(commands);
     internal void SimulateNotification(AncsNotification n) => OnNotification(n);

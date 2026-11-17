@@ -62,6 +62,19 @@ public static class ShareTests
             Check.Equal("_CON.txt", FileNames.Clean("CON.txt", null, now), "nome reservado");
         });
 
+        yield return new TestCase("Bateria: percebe quando o iPhone está carregando", () =>
+        {
+            var t = new Native.Protocol.ChargeTracker();
+            var t0 = new DateTime(2026, 11, 17, 19, 0, 0);
+            Check.Equal(Native.Protocol.ChargeState.Unknown, t.Update(40, t0), "primeira leitura não diz nada");
+            Check.Equal(Native.Protocol.ChargeState.Charging, t.Update(41, t0.AddMinutes(2)), "subiu: carregando");
+            Check.Equal(Native.Protocol.ChargeState.Charging, t.Update(41, t0.AddMinutes(6)), "parado um pouco: continua");
+            Check.Equal(Native.Protocol.ChargeState.Unknown, t.Tick(t0.AddMinutes(40)), "parado muito tempo: deixa de afirmar");
+            Check.Equal(Native.Protocol.ChargeState.Discharging, t.Update(40, t0.AddMinutes(41)), "caiu: fora da tomada");
+            t.Update(99, t0.AddMinutes(90));
+            Check.Equal(Native.Protocol.ChargeState.Full, t.Update(100, t0.AddMinutes(95)), "chegou a 100%");
+        });
+
         yield return new TestCase("Servidor: chave, envio do iPhone, download e pulo de vídeo (Range)", ServerRoundTrip);
     }
 

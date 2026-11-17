@@ -16,7 +16,7 @@ public static class DemoData
     {
         var now = DateTime.Now;
         vm.SimulateState(LinkState.Connected, "Conectado", "iPhone de Lucas", "iPhone16,1");
-        vm.SimulateBattery(82);
+        vm.SimulateCharging(81, 82);
         vm.SimulateNowPlaying(new NowPlaying("Spotify", "she's all i wanna be", "Tate McRae", "i used to think i could fly", 192, 147, 1, true, now, 0.5625));
         vm.SimulateMediaCommands(MediaCommand.Play, MediaCommand.Pause, MediaCommand.TogglePlayPause, MediaCommand.NextTrack,
             MediaCommand.PreviousTrack, MediaCommand.VolumeUp, MediaCommand.VolumeDown);
