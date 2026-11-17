@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Testes das partes de protocolo, que não dependem de Windows nem de Bluetooth.
+       Sem pacotes externos: rodam com "dotnet run" em qualquer sistema. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Native.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Native\Protocol\**\*.cs" LinkBase="Protocol" />
+  </ItemGroup>
+
+</Project>

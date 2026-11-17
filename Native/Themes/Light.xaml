@@ -1,0 +1,57 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Paleta clara, nas cores do sistema da Apple -->
+    <SolidColorBrush x:Key="WindowBg" Color="#F2F2F7"/>
+    <SolidColorBrush x:Key="CardBg" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CardHover" Color="#F7F7FA"/>
+    <SolidColorBrush x:Key="CardLayer1" Color="#E9E9EE"/>
+    <SolidColorBrush x:Key="CardLayer2" Color="#E1E1E6"/>
+    <SolidColorBrush x:Key="SegmentTrack" Color="#E3E3E8"/>
+    <SolidColorBrush x:Key="SegmentSelected" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SegmentHover" Color="#D8D8DD"/>
+    <SolidColorBrush x:Key="Separator" Color="#E0E0E5"/>
+    <SolidColorBrush x:Key="LabelPrimary" Color="#000000"/>
+    <SolidColorBrush x:Key="LabelBody" Color="#1C1C1E"/>
+    <SolidColorBrush x:Key="LabelSecondary" Color="#6C6C70"/>
+    <SolidColorBrush x:Key="LabelTertiary" Color="#AEAEB2"/>
+    <SolidColorBrush x:Key="Accent" Color="#007AFF"/>
+    <SolidColorBrush x:Key="AccentText" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SystemGreen" Color="#34C759"/>
+    <SolidColorBrush x:Key="SystemRed" Color="#FF3B30"/>
+    <SolidColorBrush x:Key="SystemOrange" Color="#FF9500"/>
+    <SolidColorBrush x:Key="SystemPurple" Color="#AF52DE"/>
+    <SolidColorBrush x:Key="PurpleSoft" Color="#22AF52DE"/>
+    <SolidColorBrush x:Key="PurpleText" Color="#8E3FB8"/>
+    <SolidColorBrush x:Key="ControlFill" Color="#E5E5EA"/>
+    <SolidColorBrush x:Key="ControlFillHover" Color="#D8D8DD"/>
+    <SolidColorBrush x:Key="ControlText" Color="#1C1C1E"/>
+    <SolidColorBrush x:Key="CircleFill" Color="#D1D1D6"/>
+    <SolidColorBrush x:Key="CircleHover" Color="#C7C7CC"/>
+    <SolidColorBrush x:Key="CircleGlyph" Color="#3A3A3C"/>
+    <SolidColorBrush x:Key="SwitchOff" Color="#E9E9EA"/>
+    <SolidColorBrush x:Key="FieldBg" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="FieldBorder" Color="#1F000000"/>
+    <SolidColorBrush x:Key="BubbleIncoming" Color="#E9E9EB"/>
+    <SolidColorBrush x:Key="BubbleIncomingText" Color="#000000"/>
+    <SolidColorBrush x:Key="OverlayDim" Color="#66000000"/>
+    <SolidColorBrush x:Key="SheetBg" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SheetBorder" Color="#14000000"/>
+    <SolidColorBrush x:Key="ScrollThumb" Color="#40000000"/>
+    <SolidColorBrush x:Key="MenuBg" Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="MenuBorder" Color="#22000000"/>
+    <SolidColorBrush x:Key="MenuText" Color="#000000"/>
+    <SolidColorBrush x:Key="BannerBg" Color="#FAFAFC"/>
+    <SolidColorBrush x:Key="BannerBorder" Color="#1A000000"/>
+    <SolidColorBrush x:Key="HoverTint" Color="#14000000"/>
+    <SolidColorBrush x:Key="PressTint" Color="#24000000"/>
+    <SolidColorBrush x:Key="TitleHover" Color="#1A000000"/>
+    <SolidColorBrush x:Key="PhoneOutline" Color="#8E8E93"/>
+    <SolidColorBrush x:Key="ProgressTrack" Color="#E5E5EA"/>
+    <SolidColorBrush x:Key="ProgressFill" Color="#3A3A3C"/>
+    <SolidColorBrush x:Key="BatteryOutline" Color="#8E8E93"/>
+    <SolidColorBrush x:Key="BatteryFill" Color="#1C1C1E"/>
+    <SolidColorBrush x:Key="TooltipBg" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TooltipText" Color="#000000"/>
+    <Color x:Key="ShadowColor">#000000</Color>
+    <system:Double xmlns:system="clr-namespace:System;assembly=mscorlib" x:Key="ShadowOpacity">0.18</system:Double>
+</ResourceDictionary>

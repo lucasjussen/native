@@ -1,0 +1,200 @@
+<UserControl x:Class="Native.Views.NotificationsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:Native.Controls">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="20,6,14,6">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Notificações" Style="{StaticResource PageTitle}"/>
+                <Border Background="{DynamicResource PurpleSoft}" CornerRadius="9" Padding="8,2" Margin="10,2,0,0" VerticalAlignment="Center"
+                        Visibility="{Binding DoNotDisturb, Converter={StaticResource Vis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE708;" FontFamily="{StaticResource IconFont}" FontSize="10" Foreground="{DynamicResource SystemPurple}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Não Perturbe" FontSize="11" Foreground="{DynamicResource PurpleText}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            <Button Style="{StaticResource TextButton}" Content="Limpar tudo" HorizontalAlignment="Right"
+                    VerticalAlignment="Center" Command="{Binding ClearAllCommand}"
+                    Visibility="{Binding HasNotifications, Converter={StaticResource Vis}}"/>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      Padding="6,2,8,16" Focusable="False">
+            <ItemsControl ItemsSource="{Binding Groups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid x:Name="Root" Background="Transparent" Margin="7,7,4,9" Opacity="0">
+                            <Grid.RenderTransform>
+                                <TranslateTransform Y="10"/>
+                            </Grid.RenderTransform>
+                            <Grid.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.25"/>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                             To="0" Duration="0:0:0.3">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Grid.Triggers>
+
+                            <StackPanel>
+                                <!-- cabeçalho quando a pilha está aberta -->
+                                <Grid Margin="6,0,0,8" Visibility="{Binding CanCollapse, Converter={StaticResource Vis}}">
+                                    <TextBlock Text="{Binding App.DisplayName}" FontFamily="{StaticResource DisplayFont}"
+                                               FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource GrayPill}" Content="Mostrar menos"
+                                                Command="{Binding DataContext.ToggleGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"/>
+                                        <Button Style="{StaticResource CircleButton}" Content="&#xE8BB;" Margin="8,0,0,0"
+                                                ToolTip="Limpar todas"
+                                                Command="{Binding DataContext.DismissGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid>
+                                    <!-- cartões "empilhados" atrás, como no macOS -->
+                                    <Border Background="{DynamicResource CardLayer2}" CornerRadius="14" Height="24"
+                                            VerticalAlignment="Bottom" Margin="22,0,22,-12"
+                                            Visibility="{Binding ShowSecondLayer, Converter={StaticResource Vis}}"/>
+                                    <Border Background="{DynamicResource CardLayer1}" CornerRadius="14" Height="24"
+                                            VerticalAlignment="Bottom" Margin="11,0,11,-6"
+                                            Visibility="{Binding HasMore, Converter={StaticResource Vis}}"/>
+
+                                    <Border Background="{DynamicResource CardBg}" CornerRadius="14" Padding="12,11,14,11"
+                                            Cursor="Hand" MouseLeftButtonUp="Group_Click">
+                                        <StackPanel>
+                                            <ItemsControl ItemsSource="{Binding VisibleItems}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,3" Background="Transparent">
+                                                            <Grid.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <MenuItem Header="Copiar texto" Click="CopyText_Click"/>
+                                                                    <MenuItem Header="{Binding Code}" HeaderStringFormat="Copiar código {0}"
+                                                                              Click="CopyCode_Click"
+                                                                              Visibility="{Binding HasCode, Converter={StaticResource Vis}}"/>
+                                                                    <Separator/>
+                                                                    <MenuItem Header="{Binding App.DisplayName}" HeaderStringFormat="Silenciar {0} neste PC"
+                                                                              Click="Mute_Click"/>
+                                                                    <MenuItem Header="Limpar" Click="Dismiss_Click"/>
+                                                                </ContextMenu>
+                                                            </Grid.ContextMenu>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+
+                                                            <!-- ícone do app, ou foto do contato com o app no cantinho -->
+                                                            <Grid Width="36" Height="36" VerticalAlignment="Top">
+                                                                <c:AppIconView App="{Binding App}"
+                                                                               Visibility="{Binding HasContactPhoto, Converter={StaticResource NotVis}}"/>
+                                                                <Ellipse Visibility="{Binding HasContactPhoto, Converter={StaticResource Vis}}">
+                                                                    <Ellipse.Fill>
+                                                                        <ImageBrush ImageSource="{Binding ContactPhoto}" Stretch="UniformToFill"/>
+                                                                    </Ellipse.Fill>
+                                                                </Ellipse>
+                                                                <c:AppIconView App="{Binding App}" Width="16" Height="16" Margin="0,0,-3,-3"
+                                                                               HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                                               Visibility="{Binding HasContactPhoto, Converter={StaticResource Vis}}"/>
+                                                            </Grid>
+
+                                                            <StackPanel Grid.Column="1" Margin="11,0,0,0">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold"
+                                                                               TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Grid.Column="1" Text="{Binding TimeLabel}" FontSize="11.5"
+                                                                               Foreground="{DynamicResource LabelSecondary}" Margin="8,1,0,0"/>
+                                                                </Grid>
+                                                                <TextBlock Text="{Binding Subtitle}" FontWeight="Medium" TextTrimming="CharacterEllipsis"
+                                                                           Visibility="{Binding HasSubtitle, Converter={StaticResource Vis}}"/>
+                                                                <TextBlock Text="{Binding Message}" Foreground="{DynamicResource LabelBody}"
+                                                                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="72"
+                                                                           Margin="0,1,0,0" LineHeight="18"
+                                                                           Visibility="{Binding HasMessage, Converter={StaticResource Vis}}"/>
+                                                                <!-- código de verificação -->
+                                                                <Button Style="{StaticResource GrayPill}" HorizontalAlignment="Left" Margin="0,7,0,0"
+                                                                        Content="{Binding CopyCodeLabel}"
+                                                                        Command="{Binding DataContext.CopyCodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                        CommandParameter="{Binding}"
+                                                                        Visibility="{Binding ShowCopyCodeButton, Converter={StaticResource Vis}}"/>
+                                                                <StackPanel Orientation="Horizontal" Margin="0,7,0,0"
+                                                                            Visibility="{Binding CodeCopied, Converter={StaticResource Vis}}">
+                                                                    <TextBlock Text="&#xE73E;" FontFamily="{StaticResource IconFont}" FontSize="11"
+                                                                               Foreground="{DynamicResource SystemGreen}" VerticalAlignment="Center"/>
+                                                                    <TextBlock Text="{Binding Code, StringFormat='Código {0} copiado'}" FontSize="12"
+                                                                               Foreground="{DynamicResource SystemGreen}" Margin="6,0,0,0"/>
+                                                                </StackPanel>
+                                                                <!-- responder -->
+                                                                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ReplyBar}" Focusable="False"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <TextBlock Text="{Binding MoreLabel}" Foreground="{DynamicResource LabelSecondary}"
+                                                       FontSize="12" Margin="47,5,0,0"
+                                                       Visibility="{Binding HasMore, Converter={StaticResource Vis}}"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- botão de limpar que aparece ao passar o mouse -->
+                                    <Button Content="&#xE8BB;" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                            Margin="-7,-7,0,0" ToolTip="Limpar"
+                                            Command="{Binding DataContext.DismissGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource CircleButton}">
+                                                <Setter Property="Visibility" Value="Hidden"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=Root}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding CanCollapse}" Value="True">
+                                                        <Setter Property="Visibility" Value="Hidden"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- estado vazio -->
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="32,0,32,60"
+                    Visibility="{Binding IsEmpty, Converter={StaticResource Vis}}">
+            <TextBlock Text="&#xEA8F;" FontFamily="{StaticResource IconFont}" FontSize="38"
+                       Foreground="{DynamicResource LabelTertiary}" HorizontalAlignment="Center"/>
+            <TextBlock Text="Nenhuma notificação" FontSize="15" FontWeight="SemiBold"
+                       HorizontalAlignment="Center" Margin="0,14,0,4"/>
+            <TextBlock Text="{Binding EmptyHint}" Foreground="{DynamicResource LabelSecondary}"
+                       TextAlignment="Center" TextWrapping="Wrap"/>
+            <TextBlock Text="Ctrl + Alt + N abre e fecha esta janela de qualquer lugar."
+                       Foreground="{DynamicResource LabelTertiary}" FontSize="11.5"
+                       TextAlignment="Center" TextWrapping="Wrap" Margin="0,16,0,0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

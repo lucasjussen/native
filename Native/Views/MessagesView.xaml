@@ -1,0 +1,203 @@
+<UserControl x:Class="Native.Views.MessagesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- DataContext = MessagesViewModel -->
+    <Grid>
+        <!-- ======================== lista de conversas ======================== -->
+        <Grid Visibility="{Binding IsThreadOpen, Converter={StaticResource NotVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Margin="20,6,12,6">
+                <TextBlock Text="Mensagens" Style="{StaticResource PageTitle}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource IconButton}" Content="&#xE72C;" Command="{Binding RefreshCommand}" ToolTip="Atualizar"/>
+                    <Button Style="{StaticResource IconButton}" Content="&#xE70F;" Command="{Binding NewMessageCommand}"
+                            ToolTip="Nova mensagem" Foreground="{DynamicResource Accent}" FontSize="15"/>
+                </StackPanel>
+            </Grid>
+
+            <TextBox Grid.Row="1" Style="{StaticResource Field}" Margin="16,0,16,8" Tag="Buscar"
+                     Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <StackPanel Grid.Row="2" Margin="20,0,20,6">
+                <TextBlock Text="Carregando conversas do iPhone…" Foreground="{DynamicResource LabelSecondary}" FontSize="12"
+                           Visibility="{Binding IsLoading, Converter={StaticResource Vis}}"/>
+                <Border Background="{DynamicResource CardBg}" CornerRadius="12" Padding="14,10"
+                        Visibility="{Binding HasError, Converter={StaticResource Vis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Foreground="{DynamicResource LabelBody}"/>
+                        <Button Style="{StaticResource TextButton}" Content="Tentar de novo" HorizontalAlignment="Left"
+                                Margin="-6,4,0,0" Command="{Binding RefreshCommand}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          Padding="8,0,8,12" Focusable="False">
+                <ItemsControl ItemsSource="{Binding Conversations}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource RowButton}" Padding="8,8"
+                                    Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Ellipse Width="8" Height="8" Fill="{DynamicResource Accent}" VerticalAlignment="Center"
+                                             Visibility="{Binding Unread, Converter={StaticResource Vis}}"/>
+                                    <ContentControl Grid.Column="1" Width="44" Height="44" Content="{Binding}"
+                                                    ContentTemplate="{StaticResource Avatar}" Focusable="False"/>
+                                    <StackPanel Grid.Column="2" Margin="11,0,4,0" VerticalAlignment="Center">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding TimeLabel}" FontSize="11.5"
+                                                       Foreground="{DynamicResource LabelSecondary}" Margin="8,1,0,0"/>
+                                        </Grid>
+                                        <TextBlock Text="{Binding PreviewLine}" Foreground="{DynamicResource LabelSecondary}"
+                                                   TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="36" LineHeight="18"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="32,0,32,60"
+                        Visibility="{Binding ShowEmpty, Converter={StaticResource Vis}}">
+                <TextBlock Text="&#xE8BD;" FontFamily="{StaticResource IconFont}" FontSize="38"
+                           Foreground="{DynamicResource LabelTertiary}" HorizontalAlignment="Center"/>
+                <TextBlock Text="Nenhuma conversa" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,4"/>
+                <TextBlock Text="As conversas recentes de SMS e iMessage do iPhone aparecem aqui."
+                           Foreground="{DynamicResource LabelSecondary}" TextAlignment="Center" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ======================== conversa aberta ======================== -->
+        <Grid Visibility="{Binding IsThreadOpen, Converter={StaticResource Vis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- cabeçalho -->
+            <Grid Margin="10,2,16,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Style="{StaticResource IconButton}" Content="&#xE72B;" Command="{Binding BackCommand}"
+                        Foreground="{DynamicResource Accent}" FontSize="14" ToolTip="Voltar"/>
+                <ContentControl Grid.Column="1" Width="34" Height="34" Margin="4,0,10,0" Content="{Binding OpenConversation}"
+                                ContentTemplate="{StaticResource Avatar}" Focusable="False"
+                                Visibility="{Binding IsComposingNew, Converter={StaticResource NotVis}}"/>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ThreadTitle}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding ThreadSubtitle}" FontSize="11.5" Foreground="{DynamicResource LabelSecondary}"
+                               Visibility="{Binding ThreadSubtitle, Converter={StaticResource TextVis}}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- destinatário (nova mensagem) -->
+            <TextBox Grid.Row="1" Style="{StaticResource Field}" Margin="16,0,16,8" Tag="Para: nome, número ou e-mail do iMessage"
+                     Text="{Binding NewRecipient, UpdateSourceTrigger=PropertyChanged}"
+                     Visibility="{Binding IsComposingNew, Converter={StaticResource Vis}}"/>
+
+            <!-- balões -->
+            <ScrollViewer x:Name="ThreadScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          Padding="14,4,10,8" Focusable="False">
+                <StackPanel>
+                    <TextBlock Text="Carregando…" HorizontalAlignment="Center" Margin="0,8" FontSize="12"
+                               Foreground="{DynamicResource LabelSecondary}"
+                               Visibility="{Binding IsThreadLoading, Converter={StaticResource Vis}}"/>
+                    <ItemsControl ItemsSource="{Binding Bubbles}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,2">
+                                    <TextBlock Text="{Binding TimestampLabel}" HorizontalAlignment="Center" FontSize="11"
+                                               Foreground="{DynamicResource LabelSecondary}" Margin="0,8,0,6"
+                                               Visibility="{Binding ShowTimestamp, Converter={StaticResource Vis}}"/>
+                                    <Border x:Name="Bubble" CornerRadius="18" Padding="12,7" MaxWidth="270"
+                                            HorizontalAlignment="{Binding Outgoing, Converter={StaticResource BubbleAlign}}"
+                                            Background="{DynamicResource BubbleIncoming}">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Copiar" Click="CopyBubble_Click"/>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+                                        <TextBlock x:Name="BubbleText" Text="{Binding Text}" TextWrapping="Wrap" LineHeight="19"
+                                                   Foreground="{DynamicResource BubbleIncomingText}"/>
+                                    </Border>
+                                    <TextBlock Text="{Binding Status}" FontSize="11" Margin="0,2,6,0"
+                                               HorizontalAlignment="{Binding Outgoing, Converter={StaticResource BubbleAlign}}"
+                                               Visibility="{Binding HasStatus, Converter={StaticResource Vis}}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource LabelSecondary}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Failed}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource SystemRed}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Outgoing}" Value="True">
+                                        <Setter TargetName="Bubble" Property="Background" Value="{DynamicResource Accent}"/>
+                                        <Setter TargetName="BubbleText" Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- campo de envio -->
+            <StackPanel Grid.Row="3" Margin="14,4,14,14">
+                <TextBlock Text="{Binding Status}" TextWrapping="Wrap" FontSize="12" Margin="4,0,4,6"
+                           Foreground="{DynamicResource SystemRed}" Visibility="{Binding HasStatus, Converter={StaticResource Vis}}"/>
+                <Border Padding="12,2,3,2" CornerRadius="18" Background="{DynamicResource FieldBg}"
+                        BorderBrush="{DynamicResource FieldBorder}" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Mensagem" Foreground="{DynamicResource LabelTertiary}" VerticalAlignment="Center"
+                                   IsHitTestVisible="False" Margin="2,0,0,0"
+                                   x:Name="ComposeHint"/>
+                        <TextBox x:Name="Composer" Text="{Binding ComposeText, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="Transparent" BorderThickness="0" Foreground="{DynamicResource LabelPrimary}"
+                                 CaretBrush="{DynamicResource LabelPrimary}" SelectionBrush="{DynamicResource Accent}" FontSize="13"
+                                 VerticalContentAlignment="Center" MinHeight="30" Padding="0" TextWrapping="Wrap" MaxHeight="110"
+                                 AcceptsReturn="False" TextChanged="Composer_TextChanged">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding SendCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <Button Grid.Column="1" Style="{StaticResource SendButton}" Margin="6,0,0,0" VerticalAlignment="Center"
+                                Command="{Binding SendCommand}" IsEnabled="{Binding CanSend}" ToolTip="Enviar (Enter)"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

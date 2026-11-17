@@ -1,0 +1,102 @@
+<Window x:Class="Native.BannerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:Native.Controls"
+        Title="Native"
+        Width="396" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" ShowActivated="False"
+        Foreground="{DynamicResource LabelPrimary}"
+        FontFamily="{StaticResource UiFont}" FontSize="13"
+        UseLayoutRounding="True">
+
+    <Grid Margin="16,12,16,20">
+        <Grid.RenderTransform>
+            <TranslateTransform x:Name="Slide" X="0"/>
+        </Grid.RenderTransform>
+
+        <!-- sombra separada para o texto não ficar borrado -->
+        <Border CornerRadius="16" Background="{DynamicResource BannerBg}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="26" ShadowDepth="6" Direction="270" Opacity="0.5" Color="Black"/>
+            </Border.Effect>
+        </Border>
+
+        <Border CornerRadius="16" Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource BannerBorder}" BorderThickness="1"
+                Padding="13,12,14,12" Cursor="Hand" MouseLeftButtonUp="Card_Click">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Width="38" Height="38" VerticalAlignment="Top">
+                    <c:AppIconView App="{Binding App}" Visibility="{Binding HasContactPhoto, Converter={StaticResource NotVis}}"/>
+                    <Ellipse Visibility="{Binding HasContactPhoto, Converter={StaticResource Vis}}">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="{Binding ContactPhoto}" Stretch="UniformToFill"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <c:AppIconView App="{Binding App}" Width="17" Height="17" Margin="0,0,-3,-3"
+                                   HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                   Visibility="{Binding HasContactPhoto, Converter={StaticResource Vis}}"/>
+                </Grid>
+
+                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Grid.Column="1" Text="{Binding TimeLabel}" FontSize="11.5"
+                                   Foreground="{DynamicResource LabelSecondary}" Margin="8,1,0,0"/>
+                    </Grid>
+                    <TextBlock Text="{Binding Subtitle}" FontWeight="Medium" TextTrimming="CharacterEllipsis"
+                               Visibility="{Binding HasSubtitle, Converter={StaticResource Vis}}"/>
+                    <TextBlock Text="{Binding Message}" Foreground="{DynamicResource LabelBody}" TextWrapping="Wrap"
+                               TextTrimming="CharacterEllipsis" MaxHeight="54" LineHeight="18" Margin="0,1,0,0"
+                               Visibility="{Binding HasMessage, Converter={StaticResource Vis}}"/>
+
+                    <!-- código de verificação -->
+                    <Button Style="{StaticResource GrayPill}" HorizontalAlignment="Left" Margin="0,9,0,0"
+                            Content="{Binding CopyCodeLabel}" Click="CopyCode_Click"
+                            Visibility="{Binding ShowCopyCodeButton, Converter={StaticResource Vis}}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,9,0,0"
+                                Visibility="{Binding CodeCopied, Converter={StaticResource Vis}}">
+                        <TextBlock Text="&#xE73E;" FontFamily="{StaticResource IconFont}" FontSize="11"
+                                   Foreground="{DynamicResource SystemGreen}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Code, StringFormat='Código {0} copiado'}" FontSize="12"
+                                   Foreground="{DynamicResource SystemGreen}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- responder -->
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ReplyBar}" Focusable="False"/>
+
+                    <!-- ligação recebida -->
+                    <UniformGrid Columns="2" Margin="0,10,0,0" Visibility="{Binding IsCall, Converter={StaticResource Vis}}">
+                        <Button Style="{StaticResource PillButton}" Background="{DynamicResource SystemRed}"
+                                Content="Recusar" Margin="0,0,5,0" Click="Decline_Click"/>
+                        <Button Style="{StaticResource PillButton}" Background="{DynamicResource SystemGreen}"
+                                Content="Atender no iPhone" Margin="5,0,0,0" Click="Answer_Click"/>
+                    </UniformGrid>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- fechar, aparece ao passar o mouse (como no macOS) -->
+        <Button Content="&#xE8BB;" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7,-7,0,0"
+                Click="Close_Click">
+            <Button.Style>
+                <Style TargetType="Button" BasedOn="{StaticResource CircleButton}">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+    </Grid>
+</Window>

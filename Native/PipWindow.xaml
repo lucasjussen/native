@@ -1,0 +1,61 @@
+<Window x:Class="Native.PipWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="clr-namespace:Native.Views"
+        Title="Native · Tocando Agora"
+        Width="356" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" ShowActivated="False"
+        Foreground="{DynamicResource LabelPrimary}"
+        FontFamily="{StaticResource UiFont}" FontSize="13"
+        UseLayoutRounding="True">
+
+    <!-- Mini player flutuante: fica por cima de tudo, arrasta para qualquer canto. -->
+    <Grid Margin="14,10,14,18" x:Name="Card">
+        <Border CornerRadius="18" Background="{DynamicResource BannerBg}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.45" Color="Black"/>
+            </Border.Effect>
+        </Border>
+
+        <Border CornerRadius="18" Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource BannerBorder}" BorderThickness="1"
+                Padding="14,12,14,8" MouseLeftButtonDown="Drag">
+            <Grid>
+                <v:NowPlayingView IsCompact="True"
+                                  Visibility="{Binding HasNowPlaying, Converter={StaticResource Vis}}"/>
+
+                <!-- nada tocando -->
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,8"
+                            Visibility="{Binding HasNowPlaying, Converter={StaticResource NotVis}}">
+                    <Border Width="46" Height="46" CornerRadius="10" Background="{DynamicResource CardBg}">
+                        <TextBlock Text="&#xE8D6;" FontFamily="{StaticResource IconFont}" FontSize="19"
+                                   Foreground="{DynamicResource LabelTertiary}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Nada tocando" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock Text="Toque algo no iPhone e aparece aqui" FontSize="12"
+                                   Foreground="{DynamicResource LabelSecondary}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- botões que aparecem ao passar o mouse, como no PiP do macOS -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7,-7,0,0">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            <Button Style="{StaticResource CircleButton}" Content="&#xE8BB;" ToolTip="Fechar mini player" Click="Close_Click"/>
+            <Button Style="{StaticResource CircleButton}" Margin="4,0,0,0" ToolTip="Abrir o Native" Click="Open_Click">
+                <TextBlock Text="&#xE8A7;" FontFamily="{StaticResource IconFont}" FontSize="9"/>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>
