@@ -41,7 +41,7 @@ O Vincular ao Celular, da Microsoft, é o único caminho oficial para usar o iPh
 | **Tema claro e escuro** | Segue o Windows ou fica fixo, e troca na hora. |
 | **Guia de conexão** | Na primeira vez (ou quando algo falta), mostra passo a passo o que fazer, com o passo atual destacado. |
 
-Atalhos: **Ctrl + Alt + N** abre e fecha de qualquer lugar; **Ctrl + 1…5** troca de aba. Fechar a janela deixa o app na bandeja, como no Mac.
+Atalhos: **Ctrl + Alt + N** abre e fecha de qualquer lugar; **Ctrl + 1…4** troca de aba e **Ctrl + ,** abre os Ajustes. Fechar a janela deixa o app na bandeja. O alfinete na barra de título mantém a janela na frente de tudo.
 
 
 ## Instalar

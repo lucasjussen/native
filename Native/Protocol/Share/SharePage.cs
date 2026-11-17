@@ -124,7 +124,7 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
   const key = new URLSearchParams(location.search).get('k') || '';
   const $ = id => document.getElementById(id);
   const q = (p, extra) => `${p}?k=${encodeURIComponent(key)}${extra || ''}`;
-  let known = new Set(), first = true, failures = 0, busy = false, shortcutUrl = '';
+  let known = new Set(), first = true, failures = 0, busy = false, shortcutUrl = '', downloading = 0;
 
   $('scToggle').onclick = () => { const h = $('scSteps').classList.toggle('hidden'); $('scArrow').textContent = h ? '›' : '⌄'; };
   $('scCopy').onclick = () => {
@@ -180,9 +180,11 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
         // Fotos e vídeos abrem para "Salvar em Fotos"; o resto vai para o app Arquivos.
         const href = media ? q('/api/file/' + it.id) : q('/api/file/' + it.id, '&dl=1');
         row.innerHTML = `${thumb}<div class="info"><div class="name">${esc(it.name)}</div><div class="meta">${fmtSize(it.size)} · ${when}</div></div>
-          <a class="btn" href="${href}" target="_blank" rel="noopener">${media ? 'Abrir' : 'Baixar'}</a>
+          <a class="btn" href="${href}"${media ? ' target="_blank" rel="noopener"' : ''}>${media ? 'Abrir' : 'Baixar'}</a>
           <button class="x" aria-label="Remover">×</button>`;
-        row.querySelector('a.btn').addEventListener('click', () => { if (media) post('/api/ack/' + it.id); });
+        const link = row.querySelector('a.btn');
+        if (media) link.addEventListener('click', () => post('/api/ack/' + it.id));
+        else link.addEventListener('click', ev => { ev.preventDefault(); download(it, link, row); });
       }
       row.querySelector('.x').onclick = () => { row.remove(); post('/api/remove/' + it.id); };
       box.appendChild(row);
@@ -203,10 +205,41 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
       setStatus(true, data.name);
       shortcutUrl = data.shortcut || '';
       $('sc').classList.toggle('hidden', !shortcutUrl);
-      render(data.items);
+      if (!downloading) render(data.items);   // não redesenha a lista no meio de um download
     } catch (e) {
       if (++failures >= 2) { $('offline').classList.remove('hidden'); setStatus(false, 'Computador fora do alcance'); }
     } finally { busy = false; }
+  }
+
+  // ---------- baixar no iPhone
+  // Baixa o arquivo inteiro aqui e entrega ao iPhone como download (vai para o app Arquivos),
+  // em vez de abrir a visualização do Safari.
+  function download(it, link, row) {
+    if (link.dataset.busy) return;
+    link.dataset.busy = '1';
+    downloading++;
+    const meta = row.querySelector('.meta');
+    const before = meta.innerHTML;
+    const x = new XMLHttpRequest();
+    x.open('GET', q('/api/file/' + it.id, '&dl=1'));
+    x.responseType = 'blob';
+    x.onprogress = ev => { if (ev.lengthComputable) link.textContent = Math.round(ev.loaded / ev.total * 100) + '%'; };
+    x.onload = () => {
+      delete link.dataset.busy; downloading--;
+      if (x.status !== 200) { link.textContent = 'Baixar'; meta.innerHTML = '<span class="err">não deu para baixar</span>'; return; }
+      const blob = new Blob([x.response], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = it.name; a.style.display = 'none';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      link.textContent = 'Baixar';
+      meta.innerHTML = before + ' · <span class="ok">em Arquivos › Downloads</span>';
+      setTimeout(() => { if (!downloading) refresh(); }, 2500);
+      post('/api/ack/' + it.id);
+    };
+    x.onerror = () => { delete link.dataset.busy; downloading--; link.textContent = 'Baixar'; meta.innerHTML = '<span class="err">sem conexão com o computador</span>'; };
+    x.send();
   }
 
   // ---------- envio

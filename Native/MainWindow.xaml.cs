@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Input;
 using Native.Services;
@@ -19,11 +20,17 @@ public partial class MainWindow : Window
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
-    private void Pin_Click(object sender, RoutedEventArgs e)
+    private void Maximize_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+    protected override void OnStateChanged(EventArgs e)
     {
-        Topmost = !Topmost;
-        PinButton.ToolTip = Topmost ? "Fixada na frente (clique para soltar)" : "Manter sempre na frente";
-        PinButton.Opacity = Topmost ? 1.0 : 0.85;
+        base.OnStateChanged(e);
+        bool max = WindowState == WindowState.Maximized;
+        // Maximizada sem a moldura do Windows, a janela passa um pouco da tela: compensa a borda.
+        RootGrid.Margin = max ? new Thickness(7) : new Thickness(0);
+        MaxButton.Content = max ? "\uE923" : "\uE922";
+        MaxButton.ToolTip = max ? "Restaurar" : "Maximizar";
     }
 
     // ------------------------------------------------------------ soltar arquivos em qualquer lugar da janela
@@ -103,7 +110,7 @@ public partial class MainWindow : Window
             Key.D2 or Key.NumPad2 => AppTab.Messages,
             Key.D3 or Key.NumPad3 => AppTab.Phone,
             Key.D4 or Key.NumPad4 => AppTab.Files,
-            Key.D5 or Key.NumPad5 or Key.OemComma => AppTab.Settings,
+            Key.D5 or Key.NumPad5 or Key.OemComma => AppTab.Settings,   // Ajustes agora é a engrenagem
             _ => null,
         };
         if (tab is null) return;

@@ -21,6 +21,7 @@ public sealed class AppSettings
     public bool DoNotDisturb { get; set; }
     public bool AirPlayAlwaysOn { get; set; }
     public bool SyncContacts { get; set; } = true;
+    public bool KeepOnTop { get; set; }
     public double? PipLeft { get; set; }
     public double? PipTop { get; set; }
 

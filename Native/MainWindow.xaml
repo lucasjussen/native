@@ -10,6 +10,7 @@
         FontFamily="{StaticResource UiFont}" FontSize="13"
         Icon="pack://application:,,,/Assets/Native.ico"
         UseLayoutRounding="True"
+        Topmost="{Binding KeepOnTop, Mode=OneWay}"
         AllowDrop="True" PreviewDragEnter="Window_DragEnter" PreviewDragOver="Window_DragOver"
         PreviewDragLeave="Window_DragLeave" PreviewDrop="Window_Drop">
 
@@ -18,7 +19,7 @@
                       CornerRadius="0" UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
 
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="44"/>
             <RowDefinition Height="Auto"/>
@@ -29,28 +30,54 @@
 
         <!-- ======================== barra de título ======================== -->
         <Grid Grid.Row="0">
-            <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                <Button Style="{StaticResource TrafficLight}" Background="#FF5F57" Content="&#xE8BB;"
-                        Click="Close_Click" ToolTip="Fechar (continua rodando na bandeja)"/>
-                <Button Style="{StaticResource TrafficLight}" Background="#FEBC2E" Content="&#xE921;"
-                        Click="Minimize_Click" ToolTip="Minimizar"/>
-                <Button x:Name="PinButton" Style="{StaticResource TrafficLight}" Background="#28C840" Content="&#xE718;"
-                        Click="Pin_Click" ToolTip="Manter sempre na frente"/>
+            <!-- à esquerda: Não Perturbe, Ajustes e Fixar -->
+            <StackPanel Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <Button Content="&#xE708;" Command="{Binding ToggleDoNotDisturbCommand}" ToolTip="{Binding DoNotDisturbTooltip}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DoNotDisturb}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource SystemPurple}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="&#xE713;" Command="{Binding ToggleSettingsCommand}" ToolTip="Ajustes (Ctrl + ,)" Margin="2,0,0,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSettingsTab}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding ToggleKeepOnTopCommand}" ToolTip="{Binding KeepOnTopTooltip}" Margin="2,0,0,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                            <Setter Property="Content" Value="&#xE718;"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding KeepOnTop}" Value="True">
+                                    <Setter Property="Content" Value="&#xE841;"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </StackPanel>
-            <TextBlock Text="Native" HorizontalAlignment="Center" VerticalAlignment="Center"
+
+            <TextBlock Text="Native" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
                        FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource LabelSecondary}"/>
-            <Button HorizontalAlignment="Right" Margin="0,0,12,0" VerticalAlignment="Center"
-                    Content="&#xE708;" Command="{Binding ToggleDoNotDisturbCommand}" ToolTip="{Binding DoNotDisturbTooltip}">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding DoNotDisturb}" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource SystemPurple}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
+
+            <!-- à direita: botões do Windows -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <Button Style="{StaticResource CaptionButton}" Content="&#xE921;" Click="Minimize_Click" ToolTip="Minimizar"/>
+                <Button x:Name="MaxButton" Style="{StaticResource CaptionButton}" Content="&#xE922;" Click="Maximize_Click" ToolTip="Maximizar"/>
+                <Button Style="{StaticResource CaptionCloseButton}" Content="&#xE8BB;" Click="Close_Click" ToolTip="Fechar (continua rodando na bandeja)"/>
+            </StackPanel>
         </Grid>
 
         <!-- ======================== cartão do iPhone ======================== -->
@@ -140,12 +167,11 @@
         <!-- ======================== abas ======================== -->
         <Border Grid.Row="3" Margin="16,0,16,8" Padding="2" CornerRadius="9" Background="{DynamicResource SegmentTrack}"
                 Visibility="{Binding ShowSetup, Converter={StaticResource NotVis}}">
-            <UniformGrid Columns="5">
-                <RadioButton Style="{StaticResource Segment}" Content="Avisos" IsChecked="{Binding IsNotificationsTab}" ToolTip="Notificações (Ctrl+1)"/>
+            <UniformGrid Columns="4">
+                <RadioButton Style="{StaticResource Segment}" Content="Notificações" IsChecked="{Binding IsNotificationsTab}" ToolTip="Ctrl+1"/>
                 <RadioButton Style="{StaticResource Segment}" Content="Mensagens" IsChecked="{Binding IsMessagesTab}" ToolTip="Ctrl+2"/>
                 <RadioButton Style="{StaticResource Segment}" Content="Telefone" IsChecked="{Binding IsPhoneTab}" ToolTip="Ctrl+3"/>
                 <RadioButton Style="{StaticResource Segment}" Content="Arquivos" IsChecked="{Binding IsFilesTab}" ToolTip="Mandar e receber arquivos (Ctrl+4)"/>
-                <RadioButton Style="{StaticResource Segment}" Content="Ajustes" IsChecked="{Binding IsSettingsTab}" ToolTip="Ctrl+5"/>
             </UniformGrid>
         </Border>
 

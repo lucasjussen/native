@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## 1.3.1 — 17/11/2026
+
+- **Barra de título no padrão do Windows:** minimizar, maximizar e fechar no canto direito. À esquerda ficam Não Perturbe, Ajustes (engrenagem) e Fixar.
+- **Fixar na frente:** o alfinete deixa a janela por cima de tudo e ela não some ao clicar em outro programa. A escolha fica salva e também está no menu da bandeja.
+- **Ajustes saiu das abas** e virou a engrenagem; clicar de novo volta para a aba anterior. As abas voltaram a ser Notificações, Mensagens, Telefone e Arquivos (Ctrl+1…4; Ctrl+, abre os Ajustes).
+- **Corrigido:** no iPhone, "Baixar" abria o arquivo em vez de baixar. Agora o arquivo é baixado com barra de progresso e vai para Arquivos › Downloads.
+
 ## 1.3.0 — 17/11/2026
 
 - **Novo nome: Native** (antes "Continuidade"). Os ajustes, a agenda guardada, os registros e o pareamento do iPhone são trazidos automaticamente; o instalador remove a versão antiga, o atalho antigo do "Enviar para" e a regra antiga do firewall.

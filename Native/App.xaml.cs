@@ -202,6 +202,12 @@ public partial class App : Application
         });
         menu.Items.Add(_dndMenuItem);
 
+        var pinItem = new Forms.ToolStripMenuItem("Manter na frente de tudo", null, (_, _) =>
+        {
+            if (_vm is not null) _vm.KeepOnTop = !_vm.KeepOnTop;
+        });
+        menu.Items.Add(pinItem);
+
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add(new Forms.ToolStripMenuItem("Ajustes…", null, (_, _) => ShowTab(AppTab.Settings)));
         menu.Items.Add(new Forms.ToolStripMenuItem("Sair do Native", null, (_, _) => ExitApp()));
@@ -210,6 +216,7 @@ public partial class App : Application
         {
             if (_vm is null) return;
             _dndMenuItem.Checked = _vm.DoNotDisturb;
+            pinItem.Checked = _vm.KeepOnTop;
             _pipMenuItem.Checked = _vm.IsPipOpen;
             _mirrorMenuItem.Text = _vm.IsMirroring ? "Parar espelhamento" : "Espelhar iPhone";
             _statusMenuItem.Text = _vm.IsConnected

@@ -102,6 +102,8 @@ public sealed class MainViewModel : ObservableObject
         LocateUxPlayCommand = new RelayCommand(LocateUxPlay);
         CopyCodeCommand = new RelayCommand(p => { if (p is PhoneNotification n) CopyCode(n); });
         ToggleDoNotDisturbCommand = new RelayCommand(() => DoNotDisturb = !DoNotDisturb);
+        ToggleKeepOnTopCommand = new RelayCommand(() => KeepOnTop = !KeepOnTop);
+        ToggleSettingsCommand = new RelayCommand(() => SelectedTab = SelectedTab == AppTab.Settings ? _tabBeforeSettings : AppTab.Settings);
         PlayPauseCommand = new RelayCommand(() => SendMedia(MediaCommand.TogglePlayPause));
         NextTrackCommand = new RelayCommand(() => SendMedia(MediaCommand.NextTrack));
         PreviousTrackCommand = new RelayCommand(() => SendMedia(MediaCommand.PreviousTrack));
@@ -421,7 +423,9 @@ public sealed class MainViewModel : ObservableObject
         get => _selectedTab;
         set
         {
+            var previous = _selectedTab;
             if (!Set(ref _selectedTab, value)) return;
+            if (value == AppTab.Settings && previous != AppTab.Settings) _tabBeforeSettings = previous;
             Raise(nameof(IsNotificationsTab));
             Raise(nameof(IsMessagesTab));
             Raise(nameof(IsPhoneTab));
@@ -572,6 +576,26 @@ public sealed class MainViewModel : ObservableObject
     public ICommand LocateUxPlayCommand { get; }
     public ICommand CopyCodeCommand { get; }
     public ICommand ToggleDoNotDisturbCommand { get; }
+    public ICommand ToggleKeepOnTopCommand { get; }
+    public ICommand ToggleSettingsCommand { get; }
+
+    /// <summary>Fixar: a janela fica por cima de tudo e não some ao clicar em outro programa.</summary>
+    public bool KeepOnTop
+    {
+        get => _settings.KeepOnTop;
+        set
+        {
+            if (_settings.KeepOnTop == value) return;
+            _settings.KeepOnTop = value;
+            _settings.Save();
+            Raise(nameof(KeepOnTop));
+            Raise(nameof(KeepOnTopTooltip));
+        }
+    }
+
+    public string KeepOnTopTooltip => KeepOnTop ? "Fixada na frente de tudo (clique para soltar)" : "Fixar: manter na frente de tudo";
+
+    private AppTab _tabBeforeSettings = AppTab.Notifications;
     public ICommand PlayPauseCommand { get; }
     public ICommand NextTrackCommand { get; }
     public ICommand PreviousTrackCommand { get; }

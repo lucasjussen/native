@@ -343,7 +343,9 @@ public sealed class ShareServer : IDisposable
         };
         if (range is not null) headers["Content-Range"] = $"bytes {start}-{end}/{size}";
 
-        await HttpResponse.WriteHeadAsync(s, range is null ? 200 : 206, MimeTypes.For(item.Name), length, req.KeepAlive, headers, ct);
+        // Para baixar, manda como binário genérico: com o tipo real (PDF, Word...) o iPhone só abre a prévia.
+        var contentType = download ? "application/octet-stream" : MimeTypes.For(item.Name);
+        await HttpResponse.WriteHeadAsync(s, range is null ? 200 : 206, contentType, length, req.KeepAlive, headers, ct);
         if (req.Method == "HEAD" || length == 0) { await s.FlushAsync(ct); return true; }
 
         fs.Position = start;
