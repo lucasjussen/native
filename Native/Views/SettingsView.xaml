@@ -118,6 +118,17 @@
             <TextBlock Style="{StaticResource SectionFooter}"
                        Text="Com a agenda, as notificações e conversas mostram nome e foto. Ela é atualizada uma vez por dia e fica só neste computador."/>
 
+            <!-- área de transferência -->
+            <TextBlock Text="ÁREA DE TRANSFERÊNCIA" Style="{StaticResource SectionHeader}"/>
+            <Border Style="{StaticResource Card}">
+                <Grid Style="{StaticResource Row}">
+                    <TextBlock Text="Deixar o iPhone ver o que copio no PC" Style="{StaticResource SettingLabel}"/>
+                    <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding Files.ClipboardSharing}"/>
+                </Grid>
+            </Border>
+            <TextBlock Style="{StaticResource SectionFooter}"
+                       Text="O iPhone só lê quando você pede (Atalho “Pegar do PC” ou o botão no Native do iPhone), e só na sua rede. Desligue se costuma copiar senhas."/>
+
             <!-- espelhamento -->
             <TextBlock Text="ESPELHAMENTO" Style="{StaticResource SectionHeader}"/>
             <Border Style="{StaticResource Card}">

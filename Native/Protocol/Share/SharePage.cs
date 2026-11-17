@@ -65,6 +65,10 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
 .tip .x{margin-left:auto;align-self:flex-start}
 .banner{border-radius:12px;padding:13px 14px;font-size:15px;margin-top:6px;background:var(--card);color:var(--red)}
 .hidden{display:none !important}
+.sc-steps{padding:2px 16px 14px;font-size:15px}
+.sc-steps ol{padding-left:20px;margin:6px 0 12px;line-height:1.5}
+.sc-copy{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sc-copy .meta{word-break:break-all}
 .foot{color:var(--ter);font-size:12px;text-align:center;margin-top:28px;padding:0 20px}
 @keyframes pop{from{transform:scale(.97);opacity:.4}to{transform:none;opacity:1}}
 .new{animation:pop .35s ease-out}
@@ -85,6 +89,18 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
 <h2>Do computador</h2>
 <div class="card" id="inbox"><div class="empty">Arraste arquivos para o Native no PC e eles aparecem aqui.</div></div>
 
+<h2>Área de transferência</h2>
+<div class="card" id="clipCard">
+  <div class="row"><div class="info"><div class="name">O que está copiado no PC</div>
+    <div class="meta" id="clipMeta">Toque para trazer para cá.</div></div>
+    <button class="btn" id="clipGet">Ver</button></div>
+  <div id="clipBox" class="hidden" style="padding:0 14px 14px">
+    <div class="txt" id="clipText" style="background:var(--fill);border-radius:10px;padding:10px 12px;max-height:12em;overflow:auto;-webkit-user-select:text;user-select:text"></div>
+    <img id="clipImg" class="hidden" alt="Imagem copiada no PC" style="max-width:100%;border-radius:10px;display:block">
+    <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn primary" id="clipCopy">Copiar no iPhone</button></div>
+  </div>
+</div>
+
 <h2>Enviar para o computador</h2>
 <label class="big" for="picker">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
@@ -99,21 +115,45 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
   <div class="send-row"><button class="btn primary" id="sendText">Enviar</button></div>
 </div>
 
-<h2>Pelo menu Compartilhar</h2>
+<h2>Atalhos do iPhone</h2>
 <div class="card" id="sc">
-  <div class="row" id="scToggle" style="cursor:pointer"><div class="info"><div class="name">Criar o Atalho “Enviar para o PC”</div>
-    <div class="meta">Uma vez só. Depois é Compartilhar → Enviar para o PC, como o AirDrop.</div></div><span class="meta" id="scArrow">›</span></div>
-  <div id="scSteps" class="hidden" style="padding:2px 16px 14px;font-size:15px">
-    <ol style="padding-left:20px;margin:6px 0 12px;line-height:1.5">
+  <div class="row sc-head" data-k="up" style="cursor:pointer"><div class="info"><div class="name">“Enviar para o PC”</div>
+    <div class="meta">Compartilhar → Enviar para o PC, como o AirDrop.</div></div><span class="meta sc-arrow">›</span></div>
+  <div class="sc-steps hidden" data-k="up">
+    <ol>
       <li>Toque em <b>Copiar endereço</b> abaixo.</li>
-      <li>Abra o app <b>Atalhos</b> → <b>+</b>. Nomeie como <b>Enviar para o PC</b>.</li>
-      <li>Toque no <b>ⓘ</b> e ligue <b>Mostrar na Planilha de Compartilhamento</b>. Em tipos, deixe <b>Qualquer</b>.</li>
-      <li>Adicione <b>Repetir com Cada</b> e escolha <b>Entrada do Atalho</b>.</li>
-      <li>Dentro dele, adicione <b>Obter Conteúdo do URL</b>: cole o endereço; em <b>Mostrar Mais</b>, Método <b>POST</b>; Cabeçalho <b>X-Filename</b> = <b>Item da Repetição › Nome</b>; Corpo da Solicitação <b>Arquivo</b> = <b>Item da Repetição</b>.</li>
-      <li>Pronto. Em Fotos, Arquivos, Safari… toque em Compartilhar → <b>Enviar para o PC</b>.</li>
+      <li>App <b>Atalhos</b> → <b>+</b>. Nome: <b>Enviar para o PC</b>.</li>
+      <li>No bloco <b>Receber</b>, troque <b>Lugar Nenhum</b> por <b>Planilha de Compartilhamento</b>.</li>
+      <li>Adicione <b>Repetir com Cada</b> → <b>Entrada do Atalho</b>.</li>
+      <li>Dentro dele, <b>Obter Conteúdo do URL</b>: cole o endereço; Método <b>POST</b>; Cabeçalho <b>X-Filename</b> = <b>Item da Repetição › Nome</b>; Corpo <b>Arquivo</b> = <b>Item da Repetição</b>.</li>
     </ol>
-    <div style="display:flex;gap:8px;align-items:center"><button class="btn primary" id="scCopy">Copiar endereço</button>
-      <span class="meta" id="scHost"></span></div>
+    <div class="sc-copy"><button class="btn primary" data-copy="up">Copiar endereço</button><span class="meta"></span></div>
+  </div>
+
+  <div class="row sc-head" data-k="send" style="cursor:pointer"><div class="info"><div class="name">“Copiar para o PC”</div>
+    <div class="meta">Copiou no iPhone, cola no PC. Dá para ligar ao toque nas costas.</div></div><span class="meta sc-arrow">›</span></div>
+  <div class="sc-steps hidden" data-k="send">
+    <ol>
+      <li>Toque em <b>Copiar endereço</b> abaixo.</li>
+      <li>App <b>Atalhos</b> → <b>+</b>. Nome: <b>Copiar para o PC</b>.</li>
+      <li>Adicione <b>Obter Área de Transferência</b>.</li>
+      <li>Adicione <b>Obter Conteúdo do URL</b>: cole o endereço; Método <b>POST</b>; Corpo <b>Arquivo</b> = <b>Área de Transferência</b>.</li>
+      <li>Toque nas costas: <b>Ajustes</b> → <b>Acessibilidade</b> → <b>Toque</b> → <b>Tocar Atrás</b> → <b>Toque Duplo</b> → <b>Copiar para o PC</b>.</li>
+    </ol>
+    <div class="sc-copy"><button class="btn primary" data-copy="clip">Copiar endereço</button><span class="meta"></span></div>
+  </div>
+
+  <div class="row sc-head" data-k="get" style="cursor:pointer"><div class="info"><div class="name">“Pegar do PC”</div>
+    <div class="meta">Copiou no PC, cola no iPhone.</div></div><span class="meta sc-arrow">›</span></div>
+  <div class="sc-steps hidden" data-k="get">
+    <ol>
+      <li>Toque em <b>Copiar endereço</b> abaixo (é o mesmo do anterior).</li>
+      <li>App <b>Atalhos</b> → <b>+</b>. Nome: <b>Pegar do PC</b>.</li>
+      <li>Adicione <b>Obter Conteúdo do URL</b> e cole o endereço (Método <b>GET</b>, o padrão).</li>
+      <li>Adicione <b>Copiar para Área de Transferência</b>.</li>
+      <li>Toque nas costas: em <b>Tocar Atrás</b>, use <b>Toque Triplo</b> → <b>Pegar do PC</b>.</li>
+    </ol>
+    <div class="sc-copy"><button class="btn primary" data-copy="clip">Copiar endereço</button><span class="meta"></span></div>
   </div>
 </div>
 
@@ -126,12 +166,52 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
   const q = (p, extra) => `${p}?k=${encodeURIComponent(key)}${extra || ''}`;
   let known = new Set(), first = true, failures = 0, busy = false, shortcutUrl = '', downloading = 0;
 
-  $('scToggle').onclick = () => { const h = $('scSteps').classList.toggle('hidden'); $('scArrow').textContent = h ? '›' : '⌄'; };
-  $('scCopy').onclick = () => {
-    const ok = shortcutUrl && copy(shortcutUrl);
-    $('scCopy').textContent = ok ? 'Copiado ✓' : 'Não deu para copiar';
-    if (!ok) $('scHost').textContent = shortcutUrl;
-    setTimeout(() => $('scCopy').textContent = 'Copiar endereço', 1800);
+  let clipUrl = '';
+  document.querySelectorAll('.sc-head').forEach(head => head.onclick = () => {
+    const steps = document.querySelector(`.sc-steps[data-k="${head.dataset.k}"]`);
+    const hidden = steps.classList.toggle('hidden');
+    head.querySelector('.sc-arrow').textContent = hidden ? '›' : '⌄';
+  });
+  document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => {
+    const url = b.dataset.copy === 'up' ? shortcutUrl : clipUrl;
+    const ok = url && copy(url);
+    b.textContent = ok ? 'Copiado ✓' : 'Não deu para copiar';
+    if (!ok) b.nextElementSibling.textContent = url;
+    setTimeout(() => b.textContent = 'Copiar endereço', 1800);
+  });
+
+  // ---------- área de transferência do PC
+  let clipValue = '';
+  $('clipGet').onclick = async () => {
+    const b = $('clipGet');
+    b.textContent = '…';
+    try {
+      const r = await fetch(q('/api/clip'), { cache: 'no-store' });
+      const box = $('clipBox'), txt = $('clipText'), img = $('clipImg');
+      if (r.status === 204) { $('clipMeta').textContent = 'Nada copiado no PC agora.'; box.classList.add('hidden'); }
+      else if (r.status === 403) { $('clipMeta').textContent = 'Desligado nos Ajustes do Native no PC.'; box.classList.add('hidden'); }
+      else if (r.ok) {
+        const type = r.headers.get('Content-Type') || '';
+        box.classList.remove('hidden');
+        if (type.startsWith('image/')) {
+          const blob = await r.blob();
+          img.src = URL.createObjectURL(blob); img.classList.remove('hidden'); txt.classList.add('hidden');
+          $('clipCopy').classList.add('hidden');
+          $('clipMeta').textContent = 'Imagem: toque e segure para copiar ou salvar.';
+        } else {
+          clipValue = await r.text();
+          txt.textContent = clipValue; txt.classList.remove('hidden'); img.classList.add('hidden');
+          $('clipCopy').classList.remove('hidden');
+          $('clipMeta').textContent = 'Copiado no PC agora há pouco.';
+        }
+      }
+    } catch (e) { $('clipMeta').textContent = 'Sem conexão com o computador.'; }
+    b.textContent = 'Atualizar';
+  };
+  $('clipCopy').onclick = () => {
+    const ok = clipValue && copy(clipValue);
+    $('clipCopy').textContent = ok ? 'Copiado ✓' : 'Selecione o texto acima';
+    setTimeout(() => $('clipCopy').textContent = 'Copiar no iPhone', 1800);
   };
 
   if (!navigator.standalone && !localStorage.getItem('hintClosed')) $('hint').classList.remove('hidden');
@@ -204,6 +284,7 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
       $('pair').classList.add('hidden'); $('offline').classList.add('hidden');
       setStatus(true, data.name);
       shortcutUrl = data.shortcut || '';
+      clipUrl = data.clipUrl || '';
       $('sc').classList.toggle('hidden', !shortcutUrl);
       if (!downloading) render(data.items);   // não redesenha a lista no meio de um download
     } catch (e) {

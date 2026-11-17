@@ -30,6 +30,7 @@ public sealed class AppSettings
     public int? SharePort { get; set; }
     public bool SharePaired { get; set; }
     public string? ShareFolder { get; set; }
+    public bool ShareClipboard { get; set; } = true;
 
     /// <summary>"sistema", "claro" ou "escuro".</summary>
     public string Theme { get; set; } = "sistema";

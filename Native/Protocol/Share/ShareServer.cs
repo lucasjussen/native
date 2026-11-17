@@ -30,6 +30,34 @@ public sealed class ShareItem
 
 public sealed record ReceivedFile(string Path, string Name, long Size, string? ContentType);
 
+/// <summary>O que está copiado: texto (às vezes RTF) ou imagem.</summary>
+public sealed record ClipData(string? Text, byte[]? Image, string? ImageType = null, bool IsRtf = false)
+{
+    public bool IsEmpty => string.IsNullOrEmpty(Text) && (Image is null || Image.Length == 0);
+
+    /// <summary>Interpreta o corpo enviado pelo iPhone (Atalho "Copiar para o PC").</summary>
+    public static ClipData FromBody(byte[] body, string? contentType)
+    {
+        var type = (contentType ?? "").Split(';')[0].Trim().ToLowerInvariant();
+        if (type.StartsWith("image/", StringComparison.Ordinal) || LooksLikeImage(body))
+            return new ClipData(null, body, type.StartsWith("image/", StringComparison.Ordinal) ? type : SniffImage(body));
+        var text = Encoding.UTF8.GetString(body).TrimStart('\uFEFF');
+        bool rtf = type is "text/rtf" or "application/rtf" || text.StartsWith("{\\rtf", StringComparison.Ordinal);
+        return new ClipData(rtf ? text : text.Trim(), null, null, rtf);
+    }
+
+    private static bool LooksLikeImage(byte[] b) => SniffImage(b) is not null;
+
+    private static string? SniffImage(byte[] b)
+    {
+        if (b.Length > 8 && b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) return "image/png";
+        if (b.Length > 3 && b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF) return "image/jpeg";
+        if (b.Length > 12 && b[4] == 0x66 && b[5] == 0x74 && b[6] == 0x79 && b[7] == 0x70) return "image/heic";
+        if (b.Length > 6 && b[0] == 0x47 && b[1] == 0x49 && b[2] == 0x46) return "image/gif";
+        return null;
+    }
+}
+
 /// <summary>
 /// Servidor HTTP do compartilhamento, só para a rede local e protegido por uma chave.
 /// O iPhone usa pela página do Native (Safari / Tela de Início) ou pelo Atalho "Enviar para o PC".
@@ -54,6 +82,10 @@ public sealed class ShareServer : IDisposable
 
     public event Action<ReceivedFile>? FileReceived;
     public event Action<string>? TextReceived;
+    public event Action<ClipData>? ClipboardReceived;
+
+    /// <summary>Lê a área de transferência do PC (na thread da interface). Nulo: o usuário desligou o recurso.</summary>
+    public Func<Task<ClipData?>>? ClipboardProvider { get; set; }
     public event Action<ShareItem>? ItemDelivered;
     public event Action? OutboxChanged;
     public event Action? PhoneSeen;
@@ -279,8 +311,10 @@ public sealed class ShareServer : IDisposable
                 text = i.Text, type = i.Kind == ShareKind.File ? MimeTypes.For(i.Name) : "text/plain",
                 delivered = i.Delivered, created = new DateTimeOffset(i.Created).ToUnixTimeMilliseconds(),
             });
-            var shortcut = ShortcutBase is null ? null : $"{ShortcutBase}/api/upload?k={Uri.EscapeDataString(Token)}";
-            await Json(s, 200, new { name = DisplayName, shortcut, items }, req.KeepAlive, ct);
+            var key = Uri.EscapeDataString(Token);
+            var shortcut = ShortcutBase is null ? null : $"{ShortcutBase}/api/upload?k={key}";
+            var clipUrl = ShortcutBase is null ? null : $"{ShortcutBase}/api/clip?k={key}";
+            await Json(s, 200, new { name = DisplayName, shortcut, clipUrl, clipEnabled = ClipboardProvider is not null, items }, req.KeepAlive, ct);
             return true;
         }
 
@@ -310,6 +344,43 @@ public sealed class ShareServer : IDisposable
             if (text.Length > 0) TextReceived?.Invoke(text);
             await Json(s, 200, new { ok = true }, req.KeepAlive, ct);
             return true;
+        }
+
+        if (path == "/api/clip")
+        {
+            Seen();
+            if (req.Method == "GET")
+            {
+                if (ClipboardProvider is null)
+                {
+                    await Json(s, 403, new { error = "a leitura da área de transferência está desligada no PC" }, req.KeepAlive, ct);
+                    return true;
+                }
+                var clip = await ClipboardProvider();
+                if (clip is null || clip.IsEmpty)
+                {
+                    await HttpResponse.WriteAsync(s, 204, "text/plain", Array.Empty<byte>(), req.KeepAlive, null, ct);
+                }
+                else if (clip.Image is not null)
+                {
+                    await HttpResponse.WriteAsync(s, 200, clip.ImageType ?? "image/png", clip.Image, req.KeepAlive,
+                        new Dictionary<string, string> { ["Content-Disposition"] = HttpResponse.ContentDisposition("Copiado do PC.png", false) }, ct);
+                }
+                else
+                {
+                    await Text(s, 200, clip.Text!, req.KeepAlive, ct);
+                }
+                return true;
+            }
+            if (req.Method == "POST")
+            {
+                using var ms = new MemoryStream();
+                await CopyLimitedAsync(req.Body, ms, 40L * 1024 * 1024, ct);
+                var clip = ClipData.FromBody(ms.ToArray(), req.Header("Content-Type"));
+                if (!clip.IsEmpty) ClipboardReceived?.Invoke(clip);
+                await Json(s, 200, new { ok = !clip.IsEmpty }, req.KeepAlive, ct);
+                return true;
+            }
         }
 
         if (req.Method == "POST" && path == "/api/upload")

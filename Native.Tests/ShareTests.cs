@@ -75,6 +75,21 @@ public static class ShareTests
             Check.Equal(Native.Protocol.ChargeState.Full, t.Update(100, t0.AddMinutes(95)), "chegou a 100%");
         });
 
+        yield return new TestCase("Área de transferência: texto, RTF e imagem vindos do iPhone", () =>
+        {
+            var t = ClipData.FromBody(Encoding.UTF8.GetBytes("  olá, mundo \n"), "text/plain; charset=utf-8");
+            Check.Equal("olá, mundo", t.Text, "texto aparado");
+            Check.True(t.Image is null && !t.IsRtf, "é texto comum");
+            var r = ClipData.FromBody(Encoding.ASCII.GetBytes("{\\rtf1\\ansi Oi}"), "application/octet-stream");
+            Check.True(r.IsRtf, "reconhece RTF pelo conteúdo");
+            var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0 };
+            var i = ClipData.FromBody(png, "application/octet-stream");
+            Check.Equal("image/png", i.ImageType, "reconhece PNG sem o tipo certo");
+            Check.True(ClipData.FromBody(Array.Empty<byte>(), null).IsEmpty, "vazio é vazio");
+        });
+
+        yield return new TestCase("Servidor: área de transferência nos dois sentidos", ClipRoundTrip);
+
         yield return new TestCase("Servidor: chave, envio do iPhone, download e pulo de vídeo (Range)", ServerRoundTrip);
     }
 
@@ -154,6 +169,35 @@ public static class ShareTests
         {
             server.Stop();
             try { Directory.Delete(folder, true); } catch { }
+        }
+    }
+
+    private static async Task ClipRoundTrip()
+    {
+        var token = ShareServer.NewToken();
+        using var server = new ShareServer(token, () => Path.GetTempPath());
+        server.Start(48500 + Random.Shared.Next(0, 400), IPAddress.Loopback);
+        var url = $"http://127.0.0.1:{server.Port}/api/clip?k={token}";
+        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        try
+        {
+            Check.Equal(HttpStatusCode.Forbidden, (await http.GetAsync(url)).StatusCode, "desligado no PC");
+
+            ClipData? pc = null;
+            server.ClipboardProvider = () => Task.FromResult(pc);
+            Check.Equal(HttpStatusCode.NoContent, (await http.GetAsync(url)).StatusCode, "nada copiado");
+            pc = new ClipData("senha do wi-fi: café123", null);
+            Check.Equal("senha do wi-fi: café123", await http.GetStringAsync(url), "PC → iPhone");
+
+            ClipData? received = null;
+            server.ClipboardReceived += c => received = c;
+            await http.PostAsync(url, new StringContent("link copiado no iPhone", Encoding.UTF8, "text/plain"));
+            Check.Equal("link copiado no iPhone", received?.Text, "iPhone → PC");
+            Check.Equal(HttpStatusCode.Unauthorized, (await http.GetAsync(url.Replace(token, "errada"))).StatusCode, "sem a chave não lê");
+        }
+        finally
+        {
+            server.Stop();
         }
     }
 

@@ -35,6 +35,7 @@ O Vincular ao Celular, da Microsoft, é o único caminho oficial para usar o iPh
 | **Tocando Agora** | Player no estilo do iOS: música, artista, progresso, controles e volume do iPhone. A barra pode ser arrastada nos apps que aceitam avançar/voltar. |
 | **Mini player flutuante** | O Tocando Agora numa janelinha sempre por cima das outras, arrastável. Abre pelo botão do player ou pela bandeja. |
 | **Arquivos (tipo AirDrop)** | Arraste qualquer arquivo, foto, pasta (vira .zip), print ou link para a janela, ou use **botão direito › Enviar para › iPhone (Native)**. No iPhone, o Native da Tela de Início mostra e salva. Do iPhone para o PC: pelo mesmo app ou pelo Atalho **Compartilhar › Enviar para o PC**. Chega em Downloads › Native, com aviso. Texto e links vão direto para a área de transferência. |
+| **Área de transferência compartilhada** | Copiou no iPhone, cola no PC, e o inverso. Pelos Atalhos "Copiar para o PC" e "Pegar do PC" (dá para ligar ao toque nas costas do iPhone) ou pelo Native da Tela de Início. Texto e imagens. |
 | **Espelhamento** | A tela do iPhone no PC via AirPlay (usa o receptor gratuito [uxplay-windows](https://github.com/leapbtw/uxplay-windows)). |
 | **Não Perturbe** | Silencia banners e som sem perder nada da lista. Ligações continuam aparecendo. |
 | **Bateria e modelo** | Nível de bateria em tempo real, aviso a 20% e 10%, e o modelo do iPhone. |
