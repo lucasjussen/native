@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -143,8 +142,6 @@ public sealed class FilesViewModel : ObservableObject, IDisposable
         _server.ItemDelivered += i => Ui(() => OnDelivered(i));
         _server.OutboxChanged += () => Ui(SyncOutbox);
         _server.PhoneSeen += () => Ui(OnPhoneSeen);
-        _server.ClipboardReceived += c => Ui(() => OnClipboardReceived(c));
-        ApplyClipboardSharing();
 
         Items.CollectionChanged += (_, _) => Raise(nameof(HasItems));
 
@@ -475,119 +472,6 @@ public sealed class FilesViewModel : ObservableObject, IDisposable
             Status = copied ? "copiado" : "recebido", IsDone = true,
         });
         _banner(copied ? "Copiado do iPhone" : "Texto do iPhone", text.Length > 140 ? text[..140] + "…" : text);
-    }
-
-    // ------------------------------------------------------------ área de transferência compartilhada
-
-    /// <summary>Deixa o iPhone ler o que está copiado no PC (Atalho "Pegar do PC" e a página).</summary>
-    public bool ClipboardSharing
-    {
-        get => _settings.ShareClipboard;
-        set
-        {
-            if (_settings.ShareClipboard == value) return;
-            _settings.ShareClipboard = value;
-            _settings.Save();
-            ApplyClipboardSharing();
-            Raise();
-        }
-    }
-
-    private void ApplyClipboardSharing() =>
-        _server.ClipboardProvider = _settings.ShareClipboard ? ReadPcClipboardAsync : null;
-
-    private static Task<ClipData?> ReadPcClipboardAsync()
-    {
-        var d = Application.Current?.Dispatcher;
-        if (d is null) return Task.FromResult<ClipData?>(null);
-        return d.InvokeAsync(() =>
-        {
-            for (int attempt = 0; attempt < 5; attempt++)
-            {
-                try
-                {
-                    if (Clipboard.ContainsText()) return new ClipData(Clipboard.GetText(), null);
-                    if (Clipboard.ContainsImage() && Clipboard.GetImage() is { } image)
-                    {
-                        using var ms = new MemoryStream();
-                        var enc = new PngBitmapEncoder();
-                        enc.Frames.Add(BitmapFrame.Create(image));
-                        enc.Save(ms);
-                        return new ClipData(null, ms.ToArray(), "image/png");
-                    }
-                    if (Clipboard.ContainsFileDropList())
-                    {
-                        // Arquivos copiados no Explorer: manda os nomes (o arquivo em si vai pela aba Arquivos).
-                        var names = Clipboard.GetFileDropList().Cast<string>().Select(System.IO.Path.GetFileName);
-                        return new ClipData(string.Join("\n", names), null);
-                    }
-                    return (ClipData?)null;
-                }
-                catch (COMException)
-                {
-                    System.Threading.Thread.Sleep(40);   // outro programa está usando a área de transferência
-                }
-            }
-            return null;
-        }).Task;
-    }
-
-    private void OnClipboardReceived(ClipData clip)
-    {
-        if (clip.Image is { Length: > 0 } bytes)
-        {
-            try
-            {
-                var img = new BitmapImage();
-                using (var ms = new MemoryStream(bytes))
-                {
-                    img.BeginInit();
-                    img.CacheOption = BitmapCacheOption.OnLoad;
-                    img.StreamSource = ms;
-                    img.EndInit();
-                }
-                img.Freeze();
-                Clipboard.SetImage(img);
-
-                // guarda uma cópia para aparecer em Recentes (e poder abrir depois)
-                var ext = clip.ImageType switch { "image/jpeg" => ".jpg", "image/heic" => ".heic", "image/gif" => ".gif", _ => ".png" };
-                var path = FileNames.Unique(StagingFolder, $"Copiado do iPhone {DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss", CultureInfo.InvariantCulture)}{ext}");
-                File.WriteAllBytes(path, bytes);
-                Items.Insert(0, new TransferItem
-                {
-                    Direction = TransferDirection.FromPhone, Name = "Imagem copiada no iPhone", Size = bytes.Length, Path = path,
-                    Status = "na área de transferência", IsDone = true,
-                });
-                _banner("Copiado do iPhone", "Imagem pronta para colar (Ctrl + V).");
-            }
-            catch (Exception ex)
-            {
-                // HEIC sem a extensão do Windows não decodifica: pelo menos salva o arquivo
-                Log.Warn("Arquivos", "imagem do iPhone não entrou na área de transferência: " + ex.Message);
-                _banner("Imagem do iPhone", "Não deu para colar este formato. Envie pelo \"Enviar para o PC\".");
-            }
-            return;
-        }
-
-        var text = clip.Text ?? "";
-        if (clip.IsRtf) text = RtfToText(text);
-        if (text.Trim().Length > 0) OnTextReceived(text.Trim());
-    }
-
-    private static string RtfToText(string rtf)
-    {
-        try
-        {
-            var doc = new System.Windows.Documents.FlowDocument();
-            var range = new System.Windows.Documents.TextRange(doc.ContentStart, doc.ContentEnd);
-            using var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(rtf));
-            range.Load(ms, DataFormats.Rtf);
-            return range.Text;
-        }
-        catch
-        {
-            return rtf;
-        }
     }
 
     /// <summary>Chegou arquivo (a janela pode querer abrir a aba Arquivos).</summary>

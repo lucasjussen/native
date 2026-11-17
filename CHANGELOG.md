@@ -1,14 +1,5 @@
 # Histórico de versões
 
-## 1.4.0 — 17/11/2026
-
-- **Área de transferência compartilhada:**
-  - iPhone → PC: Atalho "Copiar para o PC" (dá para ligar ao toque duplo nas costas do iPhone). Texto vai direto para o Ctrl+V do PC; imagem também, e fica uma cópia em Recentes. Texto com formatação (RTF) chega limpo.
-  - PC → iPhone: Atalho "Pegar do PC" (toque triplo) ou o botão "Ver" no Native do iPhone, com "Copiar no iPhone".
-  - O passo a passo dos três Atalhos está no Native do iPhone, com o botão de copiar o endereço.
-  - Novo ajuste "Deixar o iPhone ver o que copio no PC" (ligado; desligue se costuma copiar senhas).
-- 2 testes novos (39 no total).
-
 ## 1.3.2 — 17/11/2026
 
 - **Carregando:** quando o iPhone está na tomada, a bateria fica verde com um raio, como no iPhone. Aviso quando chega a 100%. O iPhone não informa isso por Bluetooth, então o Native percebe pela porcentagem subindo (leva de 1 a 3 minutos para aparecer).
