@@ -54,4 +54,7 @@
     <SolidColorBrush x:Key="TooltipText" Color="#000000"/>
     <Color x:Key="ShadowColor">#000000</Color>
     <system:Double xmlns:system="clr-namespace:System;assembly=mscorlib" x:Key="ShadowOpacity">0.18</system:Double>
+    <!-- Liquid Glass desligado: sem brilho, sombra do cartão igual ao cartão -->
+    <SolidColorBrush x:Key="GlassSheen" Color="Transparent"/>
+    <SolidColorBrush x:Key="BannerShadow" Color="#FAFAFC"/>
 </ResourceDictionary>

@@ -1,0 +1,36 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Liquid Glass (escuro). Só troca pincéis: nada de desfoque de fundo em tempo real,
+         que é o que deixa janelas WPF lentas e com artefatos. -->
+    <LinearGradientBrush x:Key="WindowBg" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#262A35" Offset="0"/>
+        <GradientStop Color="#17181D" Offset="0.55"/>
+        <GradientStop Color="#1F1B29" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="CardBg" Color="#16FFFFFF"/>
+    <SolidColorBrush x:Key="CardHover" Color="#22FFFFFF"/>
+    <SolidColorBrush x:Key="CardLayer1" Color="#10FFFFFF"/>
+    <SolidColorBrush x:Key="CardLayer2" Color="#09FFFFFF"/>
+    <SolidColorBrush x:Key="SegmentTrack" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="SegmentSelected" Color="#40FFFFFF"/>
+    <SolidColorBrush x:Key="SegmentHover" Color="#1FFFFFFF"/>
+    <SolidColorBrush x:Key="Separator" Color="#1CFFFFFF"/>
+    <SolidColorBrush x:Key="FieldBg" Color="#1AFFFFFF"/>
+    <SolidColorBrush x:Key="ControlFill" Color="#24FFFFFF"/>
+    <SolidColorBrush x:Key="ControlFillHover" Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="SheetBg" Color="#F0262830"/>
+    <SolidColorBrush x:Key="BannerBg" Color="#E01F2129"/>
+    <SolidColorBrush x:Key="BannerShadow" Color="#55000000"/>
+    <!-- borda de luz: forte em cima, some embaixo -->
+    <LinearGradientBrush x:Key="BannerBorder" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#5CFFFFFF" Offset="0"/>
+        <GradientStop Color="#14FFFFFF" Offset="0.45"/>
+        <GradientStop Color="#22FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <!-- reflexo no topo do vidro -->
+    <LinearGradientBrush x:Key="GlassSheen" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#1AFFFFFF" Offset="0"/>
+        <GradientStop Color="#05FFFFFF" Offset="0.22"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.4"/>
+    </LinearGradientBrush>
+</ResourceDictionary>

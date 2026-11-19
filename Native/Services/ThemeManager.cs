@@ -11,14 +11,26 @@ public static class ThemeManager
 {
     private static readonly Uri DarkUri = new("Themes/Dark.xaml", UriKind.Relative);
     private static readonly Uri LightUri = new("Themes/Light.xaml", UriKind.Relative);
+    private static readonly Uri GlassDarkUri = new("Themes/GlassDark.xaml", UriKind.Relative);
+    private static readonly Uri GlassLightUri = new("Themes/GlassLight.xaml", UriKind.Relative);
     private static string _mode = "sistema";
+
+    /// <summary>Liquid Glass: uma camada de pincéis translúcidos por cima da paleta clara/escura.</summary>
+    public static bool Glass { get; private set; }
+
+    public static void SetGlass(bool on)
+    {
+        Glass = on;
+        Apply(_mode);
+    }
 
     public static bool IsDark { get; private set; } = true;
 
     public static event Action? Changed;
 
-    public static void Initialize(string mode)
+    public static void Initialize(string mode, bool glass = false)
     {
+        Glass = glass;
         SystemEvents.UserPreferenceChanged += (_, e) =>
         {
             if (e.Category is UserPreferenceCategory.General or UserPreferenceCategory.Color && _mode == "sistema")
@@ -42,6 +54,15 @@ public static class ThemeManager
         var palette = new ResourceDictionary { Source = dark ? DarkUri : LightUri };
         if (existing is null) resources.Insert(0, palette);
         else resources[resources.IndexOf(existing)] = palette;
+
+        // vidro por cima da paleta (sai e entra junto com a troca de claro/escuro)
+        var oldGlass = resources.FirstOrDefault(d => d.Source is { } g && g.OriginalString.Contains("Glass"));
+        if (oldGlass is not null) resources.Remove(oldGlass);
+        if (Glass)
+        {
+            int at = resources.IndexOf(palette) + 1;
+            resources.Insert(at, new ResourceDictionary { Source = dark ? GlassDarkUri : GlassLightUri });
+        }
 
         bool changed = dark != IsDark;
         IsDark = dark;

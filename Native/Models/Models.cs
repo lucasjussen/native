@@ -269,12 +269,18 @@ public sealed class NotificationGroup : ObservableObject
     public PhoneNotification? Latest => Items.FirstOrDefault();
     public DateTime LatestTime => Latest?.ReceivedAt ?? DateTime.MinValue;
 
-    public IReadOnlyList<PhoneNotification> VisibleItems =>
-        IsExpanded ? Items.ToList() : Items.Take(1).ToList();
+    /// <summary>Empilhar notificações do mesmo app (ajuste global). Desligado, tudo fica aberto.</summary>
+    public static bool Stacking { get; set; } = true;
+    private bool Open => IsExpanded || !Stacking;
 
-    public bool HasMore => !IsExpanded && Items.Count > 1;
-    public bool ShowSecondLayer => !IsExpanded && Items.Count > 2;
-    public bool CanCollapse => IsExpanded && Items.Count > 1;
+    public IReadOnlyList<PhoneNotification> VisibleItems =>
+        Open ? Items.ToList() : Items.Take(1).ToList();
+
+    public bool HasMore => !Open && Items.Count > 1;
+    public bool ShowSecondLayer => !Open && Items.Count > 2;
+    public bool CanCollapse => IsExpanded && Stacking && Items.Count > 1;
+    /// <summary>"+3" no cantinho da pilha.</summary>
+    public string StackBadge => $"+{Items.Count - 1}";
     public string MoreLabel => Items.Count - 1 == 1 ? "Mais 1 notificação" : $"Mais {Items.Count - 1} notificações";
 
     public void Changed()
@@ -286,6 +292,7 @@ public sealed class NotificationGroup : ObservableObject
         Raise(nameof(ShowSecondLayer));
         Raise(nameof(CanCollapse));
         Raise(nameof(MoreLabel));
+        Raise(nameof(StackBadge));
     }
 
     public void RefreshTimes()

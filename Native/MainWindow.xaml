@@ -28,6 +28,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Liquid Glass: reflexo no topo da janela (transparente fora do modo vidro) -->
+        <Border Grid.RowSpan="5" Background="{DynamicResource GlassSheen}" IsHitTestVisible="False"/>
+
         <!-- ======================== barra de título ======================== -->
         <Grid Grid.Row="0">
             <!-- à esquerda: Não Perturbe, Ajustes e Fixar -->

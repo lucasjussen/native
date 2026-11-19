@@ -16,7 +16,7 @@
         </Grid.RenderTransform>
 
         <!-- sombra separada para o texto não ficar borrado -->
-        <Border CornerRadius="16" Background="{DynamicResource BannerBg}">
+        <Border CornerRadius="16" Background="{DynamicResource BannerShadow}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="26" ShadowDepth="6" Direction="270" Opacity="0.5" Color="Black"/>
             </Border.Effect>
@@ -83,6 +83,8 @@
                 </StackPanel>
             </Grid>
         </Border>
+        <!-- Liquid Glass: reflexo no topo (transparente fora do modo vidro) -->
+        <Border CornerRadius="16" Background="{DynamicResource GlassSheen}" IsHitTestVisible="False" Margin="1"/>
 
         <!-- fechar, aparece ao passar o mouse (como no macOS) -->
         <Button Content="&#xE8BB;" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7,-7,0,0"

@@ -77,7 +77,7 @@ public partial class App : Application
         Log.Info("App", $"Iniciando {typeof(App).Assembly.GetName().Version?.ToString(3)} no Windows {Environment.OSVersion.Version}");
 
         var settings = AppSettings.Load();
-        ThemeManager.Initialize(settings.Theme);
+        ThemeManager.Initialize(settings.Theme, settings.Glass);
 
         var catalog = new AppCatalog(settings);
         _client = new AncsClient();

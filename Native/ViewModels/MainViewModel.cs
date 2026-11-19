@@ -104,6 +104,8 @@ public sealed class MainViewModel : ObservableObject
         ToggleDoNotDisturbCommand = new RelayCommand(() => DoNotDisturb = !DoNotDisturb);
         ToggleKeepOnTopCommand = new RelayCommand(() => KeepOnTop = !KeepOnTop);
         ToggleMiniCommand = new RelayCommand(() => IsMiniMode = !IsMiniMode);
+        ToggleMiniPinCommand = new RelayCommand(() => MiniPinned = !MiniPinned);
+        NotificationGroup.Stacking = settings.StackNotifications;
         ToggleSettingsCommand = new RelayCommand(() => SelectedTab = SelectedTab == AppTab.Settings ? _tabBeforeSettings : AppTab.Settings);
         PlayPauseCommand = new RelayCommand(() => SendMedia(MediaCommand.TogglePlayPause));
         NextTrackCommand = new RelayCommand(() => SendMedia(MediaCommand.NextTrack));
@@ -482,6 +484,33 @@ public sealed class MainViewModel : ObservableObject
         set { _settings.PlaySound = value; _settings.Save(); Raise(); }
     }
 
+    public bool ShowWhenPhoneSilenced
+    {
+        get => _settings.ShowWhenPhoneSilenced;
+        set { _settings.ShowWhenPhoneSilenced = value; _settings.Save(); Raise(); }
+    }
+
+    /// <summary>Pilha de notificações por app. Vale para a janela e para o mini.</summary>
+    public bool StackNotifications
+    {
+        get => _settings.StackNotifications;
+        set
+        {
+            _settings.StackNotifications = value; _settings.Save();
+            NotificationGroup.Stacking = value;
+            foreach (var g in Groups) { if (!value) g.IsExpanded = false; g.Changed(); }
+            Raise();
+            RefreshRecent();
+        }
+    }
+
+    /// <summary>Liquid Glass: superfícies translúcidas com brilho de vidro.</summary>
+    public bool GlassMode
+    {
+        get => _settings.Glass;
+        set { _settings.Glass = value; _settings.Save(); ThemeManager.SetGlass(value); Raise(); }
+    }
+
     public bool AutoCopyCodes
     {
         get => _settings.AutoCopyCodes;
@@ -605,6 +634,23 @@ public sealed class MainViewModel : ObservableObject
     public ICommand ToggleKeepOnTopCommand { get; }
     public ICommand ToggleSettingsCommand { get; }
     public ICommand ToggleMiniCommand { get; }
+    public ICommand ToggleMiniPinCommand { get; }
+
+    /// <summary>Alfinete do mini: preso por cima de tudo, ou janela normal que pode ficar atrás.</summary>
+    public bool MiniPinned
+    {
+        get => _settings.MiniPinned;
+        set
+        {
+            if (_settings.MiniPinned == value) return;
+            _settings.MiniPinned = value;
+            _settings.Save();
+            Raise(nameof(MiniPinned));
+            Raise(nameof(MiniPinTooltip));
+        }
+    }
+
+    public string MiniPinTooltip => MiniPinned ? "Preso na frente de tudo (clique para soltar)" : "Prender na frente de tudo";
 
     /// <summary>Fixar: a janela fica por cima de tudo e não some ao clicar em outro programa.</summary>
     public bool KeepOnTop
@@ -822,7 +868,8 @@ public sealed class MainViewModel : ObservableObject
         Reposition(group);
         RaiseCounts();
 
-        if (n.IsPreExisting || n.IsSilent) return;
+        // Com Foco/Não Perturbe ligado no iPhone, ele manda a notificação marcada como silenciosa.
+        if (n.IsPreExisting || (n.IsSilent && !ShowWhenPhoneSilenced)) return;
 
         // Chegou SMS/iMessage: a aba Mensagens se atualiza sozinha.
         if (n.AppId == "com.apple.MobileSMS" && SelectedTab == AppTab.Messages) _ = Messages.LoadAsync(force: true);
@@ -904,16 +951,27 @@ public sealed class MainViewModel : ObservableObject
 
     /// <summary>As notificações mais novas de todos os apps, para o mini Native.</summary>
     public ObservableCollection<PhoneNotification> RecentNotifications { get; } = new();
+    /// <summary>No modo pilha: os apps mais recentes, cada um como uma pilha.</summary>
+    public ObservableCollection<NotificationGroup> RecentGroups { get; } = new();
     public int NotificationCount => Groups.Sum(g => g.Items.Count);
-    public string MoreNotificationsText => NotificationCount > RecentNotifications.Count
-        ? $"+ {NotificationCount - RecentNotifications.Count} no Native" : "";
+    private int ShownInMini => StackNotifications ? RecentGroups.Sum(g => g.Items.Count) : RecentNotifications.Count;
+    public string MoreNotificationsText => NotificationCount > ShownInMini
+        ? $"+ {NotificationCount - ShownInMini} no Native" : "";
 
     private void RefreshRecent()
     {
         var top = Groups.SelectMany(g => g.Items).OrderByDescending(n => n.ReceivedAt).Take(4).ToList();
-        if (top.SequenceEqual(RecentNotifications)) { Raise(nameof(NotificationCount)); Raise(nameof(MoreNotificationsText)); return; }
-        RecentNotifications.Clear();
-        foreach (var n in top) RecentNotifications.Add(n);
+        if (!top.SequenceEqual(RecentNotifications))
+        {
+            RecentNotifications.Clear();
+            foreach (var n in top) RecentNotifications.Add(n);
+        }
+        var groups = Groups.Take(3).ToList();
+        if (!groups.SequenceEqual(RecentGroups))
+        {
+            RecentGroups.Clear();
+            foreach (var g in groups) RecentGroups.Add(g);
+        }
         Raise(nameof(NotificationCount));
         Raise(nameof(MoreNotificationsText));
     }

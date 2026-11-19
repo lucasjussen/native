@@ -12,7 +12,7 @@
 
     <!-- Mini player flutuante: fica por cima de tudo, arrasta para qualquer canto. -->
     <Grid Margin="14,10,14,18" x:Name="Card">
-        <Border CornerRadius="18" Background="{DynamicResource BannerBg}">
+        <Border CornerRadius="18" Background="{DynamicResource BannerShadow}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.45" Color="Black"/>
             </Border.Effect>
@@ -39,6 +39,8 @@
                 </StackPanel>
             </Grid>
         </Border>
+        <!-- Liquid Glass: reflexo no topo (transparente fora do modo vidro) -->
+        <Border CornerRadius="18" Background="{DynamicResource GlassSheen}" IsHitTestVisible="False" Margin="1"/>
 
         <!-- botões que aparecem ao passar o mouse, como no PiP do macOS -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7,-7,0,0">

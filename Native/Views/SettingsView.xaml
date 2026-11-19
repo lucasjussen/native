@@ -32,6 +32,15 @@
                     <RadioButton Style="{StaticResource Segment}" Content="Escuro" IsChecked="{Binding IsThemeDark}"/>
                 </UniformGrid>
             </Border>
+            <Border Style="{StaticResource Card}" Margin="0,10,0,0">
+                <Grid Style="{StaticResource Row}">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Liquid Glass" Style="{StaticResource SettingLabel}"/>
+                        <TextBlock Text="Vidro translúcido com reflexo, leve" FontSize="12" Foreground="{DynamicResource LabelSecondary}"/>
+                    </StackPanel>
+                    <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding GlassMode}"/>
+                </Grid>
+            </Border>
 
             <!-- notificações -->
             <TextBlock Text="NOTIFICAÇÕES" Style="{StaticResource SectionHeader}"/>
@@ -53,13 +62,31 @@
                     </Grid>
                     <Border Style="{StaticResource Line}"/>
                     <Grid Style="{StaticResource Row}">
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,56,0">
+                            <TextBlock Text="Receber com o iPhone em Foco" Style="{StaticResource SettingLabel}"/>
+                            <TextBlock Text="Banner no PC mesmo com Não Perturbe ligado no iPhone" FontSize="12"
+                                       Foreground="{DynamicResource LabelSecondary}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding ShowWhenPhoneSilenced}"/>
+                    </Grid>
+                    <Border Style="{StaticResource Line}"/>
+                    <Grid Style="{StaticResource Row}">
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,56,0">
+                            <TextBlock Text="Empilhar por app" Style="{StaticResource SettingLabel}"/>
+                            <TextBlock Text="Notificações do mesmo app viram uma pilha; clique para abrir" FontSize="12"
+                                       Foreground="{DynamicResource LabelSecondary}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding StackNotifications}"/>
+                    </Grid>
+                    <Border Style="{StaticResource Line}"/>
+                    <Grid Style="{StaticResource Row}">
                         <TextBlock Text="Copiar códigos de verificação" Style="{StaticResource SettingLabel}"/>
                         <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding AutoCopyCodes}"/>
                     </Grid>
                 </StackPanel>
             </Border>
             <TextBlock Style="{StaticResource SectionFooter}"
-                       Text="Não Perturbe tira banners e som, mas a lista continua recebendo; ligações ainda aparecem. Códigos de SMS e e-mail (banco, login, 2FA) vão direto para a área de transferência: é só colar com Ctrl + V."/>
+                       Text="O Não Perturbe daqui (a lua) tira banners e som do PC, mas a lista continua recebendo; ligações ainda aparecem. O Foco do iPhone é separado: com &quot;Receber com o iPhone em Foco&quot;, o PC avisa mesmo com o iPhone silenciado. Códigos de SMS e e-mail (banco, login, 2FA) vão direto para a área de transferência: é só colar com Ctrl + V."/>
 
             <!-- por app -->
             <TextBlock Text="NOTIFICAÇÕES POR APP" Style="{StaticResource SectionHeader}"/>

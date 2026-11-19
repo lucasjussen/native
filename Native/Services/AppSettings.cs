@@ -22,6 +22,14 @@ public sealed class AppSettings
     public bool AirPlayAlwaysOn { get; set; }
     public bool SyncContacts { get; set; } = true;
     public bool KeepOnTop { get; set; }
+    /// <summary>Notificações que o iPhone marca como silenciosas (Foco/Não Perturbe ligado nele) ainda viram banner no PC.</summary>
+    public bool ShowWhenPhoneSilenced { get; set; } = true;
+    /// <summary>Notificações do mesmo app ficam numa pilha (como no iPhone e no Mac).</summary>
+    public bool StackNotifications { get; set; } = true;
+    /// <summary>Mini Native preso por cima de tudo (alfinete).</summary>
+    public bool MiniPinned { get; set; } = true;
+    /// <summary>Aparência Liquid Glass (vidro translúcido, leve).</summary>
+    public bool Glass { get; set; }
     public bool MiniMode { get; set; }
     public double? MiniLeft { get; set; }
     public double? MiniTop { get; set; }

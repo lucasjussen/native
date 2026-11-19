@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## 1.5.0
+
+- **Com o iPhone em Foco/Não Perturbe:** o iPhone continua mandando as notificações, só que marcadas como silenciosas, e o Native ignorava essas no banner. Agora elas viram banner no PC também (Ajustes › "Receber com o iPhone em Foco", ligado por padrão).
+- **Pilhas de notificações:** no Mini Native, cada app vira uma pilha com cartões atrás e um "+N"; clique para abrir e "Mostrar menos" para fechar. Na janela grande as pilhas já existiam; o ajuste "Empilhar por app" liga/desliga nos dois.
+- **Liquid Glass** (Ajustes › Aparência): fundo em degradê, cartões translúcidos, borda de luz e reflexo no topo — na janela, no Mini, nos banners e no mini player. Sem desfoque em tempo real, de propósito, para não pesar.
+- **Alfinete no Mini Native:** preso na frente de tudo (padrão) ou solto como janela normal; solto, ele aparece na barra de tarefas.
+
 ## 1.4.2
 
 - **Arrastar arquivos:** a janela inteira não vira mais alvo. Ao arrastar algo para o Native, ele abre a aba Arquivos e só a área "Arraste aqui" acende em azul ("Solte aqui"). Com o cursor em cima dela, a área preenche e o ícone cresce ("Solte para mandar ao iPhone"). Fora dela o cursor mostra que não dá para soltar.

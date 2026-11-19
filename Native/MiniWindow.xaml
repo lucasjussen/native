@@ -5,7 +5,7 @@
         Title="Native"
         Width="352" SizeToContent="Height"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" ShowActivated="False"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="{Binding MiniPinned, Mode=OneWay}" ShowActivated="False"
         Foreground="{DynamicResource LabelPrimary}"
         FontFamily="{StaticResource UiFont}" FontSize="13"
         UseLayoutRounding="True" AllowDrop="True"
@@ -21,7 +21,7 @@
     </Window.Resources>
 
     <Grid Margin="14,10,14,18">
-        <Border CornerRadius="18" Background="{DynamicResource BannerBg}">
+        <Border CornerRadius="18" Background="{DynamicResource BannerShadow}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.45" Color="Black"/>
             </Border.Effect>
@@ -111,6 +111,19 @@
                                 </Style>
                             </Button.Style>
                         </Button>
+                        <Button Command="{Binding ToggleMiniPinCommand}" ToolTip="{Binding MiniPinTooltip}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MiniIcon}">
+                                    <Setter Property="Content" Value="&#xE718;"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MiniPinned}" Value="True">
+                                            <Setter Property="Content" Value="&#xE841;"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Style="{StaticResource MiniIcon}" Content="&#xE740;" Click="Expand_Click" ToolTip="Abrir o Native completo"/>
                         <Button Style="{StaticResource MiniIcon}" Content="&#xE921;" Click="Hide_Click"
                                 ToolTip="Esconder (volta pelo ícone da bandeja ou Ctrl + Alt + N)"/>
@@ -159,7 +172,8 @@
                         <TextBlock Text="Sem notificações" Margin="9,0,0,0" FontSize="12.5" Foreground="{DynamicResource LabelSecondary}"/>
                     </StackPanel>
 
-                    <ItemsControl ItemsSource="{Binding RecentNotifications}" Margin="0,4,0,4">
+                    <ItemsControl ItemsSource="{Binding RecentNotifications}" Margin="0,4,0,4"
+                                  Visibility="{Binding StackNotifications, Converter={StaticResource NotVis}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid x:Name="Row" Background="Transparent" Cursor="Hand" MouseLeftButtonUp="Notification_Click">
@@ -197,6 +211,84 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
+                    <!-- pilhas: uma por app, com cartões atrás; clicar abre/fecha a pilha -->
+                    <ItemsControl ItemsSource="{Binding RecentGroups}" Margin="0,8,0,6"
+                                  Visibility="{Binding StackNotifications, Converter={StaticResource Vis}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="Stack" Margin="10,0,10,8" Background="Transparent">
+                                    <!-- cartões empilhados atrás -->
+                                    <Border Background="{DynamicResource CardLayer2}" CornerRadius="12" Height="20"
+                                            VerticalAlignment="Bottom" Margin="18,0,18,-8"
+                                            Visibility="{Binding ShowSecondLayer, Converter={StaticResource Vis}}"/>
+                                    <Border Background="{DynamicResource CardLayer1}" CornerRadius="12" Height="20"
+                                            VerticalAlignment="Bottom" Margin="9,0,9,-4"
+                                            Visibility="{Binding HasMore, Converter={StaticResource Vis}}"/>
+                                    <Border x:Name="Face" Background="{DynamicResource CardBg}" CornerRadius="12" Padding="10,8,8,8"
+                                            Cursor="Hand" MouseLeftButtonUp="Stack_Click">
+                                        <StackPanel>
+                                            <!-- cabeçalho da pilha aberta -->
+                                            <Grid Margin="2,0,0,4" Visibility="{Binding CanCollapse, Converter={StaticResource Vis}}">
+                                                <TextBlock Text="{Binding App.DisplayName}" FontWeight="SemiBold" FontSize="12"
+                                                           Foreground="{DynamicResource LabelSecondary}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Mostrar menos" FontSize="11.5" Foreground="{DynamicResource Accent}"
+                                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            </Grid>
+                                            <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Auto" Focusable="False">
+                                            <ItemsControl ItemsSource="{Binding VisibleItems}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid x:Name="Row" Background="Transparent" Margin="0,2">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <c:AppIconView App="{Binding App}" Width="28" Height="28" VerticalAlignment="Top" Margin="0,1,0,0"/>
+                                                            <StackPanel Grid.Column="1" Margin="10,0,4,0">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="12.5" TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Grid.Column="1" Text="{Binding TimeLabel}" FontSize="11" Margin="6,1,0,0"
+                                                                               Foreground="{DynamicResource LabelSecondary}"/>
+                                                                </Grid>
+                                                                <TextBlock Text="{Binding Message}" FontSize="12" Foreground="{DynamicResource LabelBody}"
+                                                                           TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                                                            </StackPanel>
+                                                            <Button x:Name="Dismiss" Grid.Column="2" Style="{StaticResource CircleButton}" Content="&#xE8BB;"
+                                                                    VerticalAlignment="Center" Visibility="Hidden" Click="Dismiss_Click" ToolTip="Limpar (também no iPhone)"/>
+                                                        </Grid>
+                                                        <DataTemplate.Triggers>
+                                                            <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Dismiss" Property="Visibility" Value="Visible"/>
+                                                            </Trigger>
+                                                        </DataTemplate.Triggers>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            </ScrollViewer>
+                                        </StackPanel>
+                                    </Border>
+                                    <!-- quantas há na pilha -->
+                                    <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,-7"
+                                            Background="{DynamicResource ControlFill}" CornerRadius="8" Padding="6,1"
+                                            IsHitTestVisible="False" Visibility="{Binding HasMore, Converter={StaticResource Vis}}">
+                                        <TextBlock Text="{Binding StackBadge}" FontSize="10.5" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource LabelSecondary}"/>
+                                    </Border>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <Trigger SourceName="Stack" Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Face" Property="Background" Value="{DynamicResource CardHover}"/>
+                                    </Trigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </Grid>
 
                 <!-- rodapé -->
@@ -208,6 +300,8 @@
                 </Grid>
             </StackPanel>
         </Border>
+        <!-- Liquid Glass: reflexo no topo (transparente fora do modo vidro) -->
+        <Border CornerRadius="18" Background="{DynamicResource GlassSheen}" IsHitTestVisible="False" Margin="1"/>
 
         <!-- soltar arquivos -->
         <Border x:Name="DropOverlay" CornerRadius="18" Visibility="Collapsed" IsHitTestVisible="False"

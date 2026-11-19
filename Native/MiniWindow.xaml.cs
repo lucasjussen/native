@@ -34,6 +34,9 @@ public partial class MiniWindow : Window
         Loaded += (_, _) => PlaceOnScreen();
         LocationChanged += (_, _) => { if (IsLoaded) { _vm.MiniLeft = Math.Round(Left); _vm.MiniTop = Math.Round(Top); } };
         SizeChanged += (_, _) => KeepInside();
+        // Solto (sem alfinete) ele pode ficar atrás de outras janelas: aparece na barra de tarefas para achar.
+        ShowInTaskbar = !vm.MiniPinned;
+        vm.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(MainViewModel.MiniPinned)) ShowInTaskbar = !vm.MiniPinned; };
     }
 
     private void PlaceOnScreen()
@@ -78,6 +81,16 @@ public partial class MiniWindow : Window
     {
         if (e.OriginalSource is DependencyObject d && IsButton(d)) return;
         ExpandRequested?.Invoke(AppTab.Notifications);
+    }
+
+    /// <summary>Pilha fechada com várias: abre. Aberta: fecha. Uma só: abre o Native nas notificações.</summary>
+    private void Stack_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is DependencyObject d && IsButton(d)) return;
+        if ((sender as FrameworkElement)?.DataContext is not NotificationGroup g) return;
+        if (g.Items.Count > 1) g.IsExpanded = !g.IsExpanded;
+        else ExpandRequested?.Invoke(AppTab.Notifications);
+        e.Handled = true;
     }
 
     private static bool IsButton(DependencyObject d)
