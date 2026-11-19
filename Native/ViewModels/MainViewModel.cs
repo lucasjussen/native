@@ -521,8 +521,8 @@ public sealed class MainViewModel : ObservableObject
         get => _settings.GlassOpacity;
         set
         {
-            value = Math.Round(Math.Clamp(value, 0.25, 1), 2);
-            if (Math.Abs(_settings.GlassOpacity - value) < 0.001) return;
+            value = Math.Clamp(value, 0.25, 1);
+            if (Math.Abs(_settings.GlassOpacity - value) < 0.0005) return;
             _settings.GlassOpacity = value;
             ThemeManager.SetGlassOpacity(value);
             // grava só quando o controle para de mexer (gravar a cada pixel arrastado engasgava)
@@ -559,7 +559,7 @@ public sealed class MainViewModel : ObservableObject
     public double GlassTransparency
     {
         get => 1 - GlassOpacity;
-        set { GlassOpacity = 1 - value; Raise(); }
+        set => GlassOpacity = 1 - value;   // sem Raise aqui: a barra é quem manda enquanto arrasta
     }
 
     private System.Windows.Threading.DispatcherTimer? _glassSave;

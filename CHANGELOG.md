@@ -1,5 +1,11 @@
 # Histórico de versões
 
+## 1.6.1
+
+- **Barras que seguem o mouse:** a bolinha das barras (transparência, música, volume) tinha tamanho zero, então não dava para "pegar e arrastar" — a barra só pulava. Agora o clique prende o mouse na barra e ela acompanha o arraste do começo ao fim, mesmo saindo de cima dela.
+- Correção: começar a arrastar a música ou o volume às vezes não era percebido (o clique era marcado como tratado antes), e a primeira posição se perdia.
+- **Liquid Glass mais limpo, como no iOS:** o brilho de vidro fica só nas peças que flutuam (cabeçalho do iPhone, barra de abas, Mini); os cartões de conteúdo voltam a ser lisos.
+
 ## 1.6.0
 
 - **Liquid Glass no estilo do iOS 26:** borda de luz em todos os cartões (forte na quina de cima à esquerda, reflexo na de baixo à direita), aba selecionada como uma gota de vidro, cartões e janela com o mesmo brilho.

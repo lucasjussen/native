@@ -23,6 +23,9 @@ public partial class NowPlayingView : UserControl
     public NowPlayingView()
     {
         InitializeComponent();
+        // O Slider marca o clique como tratado antes dos handlers do XAML; registrando assim eles sempre rodam.
+        SeekBar.AddHandler(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(Seek_Down), true);
+        VolumeBar.AddHandler(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(Volume_Down), true);
     }
 
     private MainViewModel? Vm => DataContext as MainViewModel;

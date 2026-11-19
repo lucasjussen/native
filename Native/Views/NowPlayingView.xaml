@@ -109,7 +109,7 @@
             <Slider x:Name="SeekBar" Style="{StaticResource MediaSlider}"
                     Value="{Binding TrackProgress, Mode=TwoWay}"
                     IsHitTestVisible="{Binding CanSeek}"
-                    PreviewMouseLeftButtonDown="Seek_Down" PreviewMouseLeftButtonUp="Seek_Up" LostMouseCapture="Seek_Up"/>
+                    PreviewMouseLeftButtonUp="Seek_Up" LostMouseCapture="Seek_Up"/>
         </Grid>
         <Grid Margin="0,0,0,0">
             <TextBlock Text="{Binding ElapsedText}" FontSize="11" Foreground="{DynamicResource LabelSecondary}"/>
@@ -150,9 +150,9 @@
             </Grid.ColumnDefinitions>
             <Button Style="{StaticResource MediaButton}" Width="28" Height="28" FontSize="12" Content="&#xE993;"
                     Foreground="{DynamicResource LabelSecondary}" Command="{Binding VolumeDownCommand}" ToolTip="Diminuir volume"/>
-            <Slider Grid.Column="1" Style="{StaticResource MediaSlider}" Margin="4,0" VerticalAlignment="Center"
+            <Slider x:Name="VolumeBar" Grid.Column="1" Style="{StaticResource MediaSlider}" Margin="4,0" VerticalAlignment="Center"
                     Value="{Binding Volume, Mode=TwoWay}" Visibility="{Binding HasVolume, Converter={StaticResource Vis}}"
-                    PreviewMouseLeftButtonDown="Volume_Down" PreviewMouseLeftButtonUp="Volume_Up" LostMouseCapture="Volume_Up"
+                    PreviewMouseLeftButtonUp="Volume_Up" LostMouseCapture="Volume_Up"
                     ToolTip="Volume do iPhone (role o mouse sobre o player para ajustar)"/>
             <TextBlock Grid.Column="1" Text="Volume do iPhone" FontSize="11.5" Foreground="{DynamicResource LabelTertiary}"
                        HorizontalAlignment="Center" VerticalAlignment="Center"

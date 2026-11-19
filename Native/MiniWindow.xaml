@@ -226,7 +226,7 @@
                                     <Border Background="{DynamicResource CardLayer1}" CornerRadius="12" Height="20"
                                             VerticalAlignment="Bottom" Margin="9,0,9,-4"
                                             Visibility="{Binding HasMore, Converter={StaticResource Vis}}"/>
-                                    <Border x:Name="Face" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}" CornerRadius="12" Padding="10,8,8,8"
+                                    <Border x:Name="Face" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource GlassRim}" BorderThickness="{DynamicResource GlassRimThickness}" CornerRadius="12" Padding="10,8,8,8"
                                             Cursor="Hand" MouseLeftButtonUp="Stack_Click">
                                         <StackPanel>
                                             <!-- cabeçalho da pilha aberta -->

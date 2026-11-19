@@ -85,7 +85,7 @@
         </Grid>
 
         <!-- ======================== cartão do iPhone ======================== -->
-        <Border Grid.Row="1" Margin="16,2,16,10" Padding="16,14" CornerRadius="16" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}">
+        <Border Grid.Row="1" Margin="16,2,16,10" Padding="16,14" CornerRadius="16" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource GlassRim}" BorderThickness="{DynamicResource GlassRimThickness}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -171,13 +171,13 @@
         </Border>
 
         <!-- ======================== tocando agora ======================== -->
-        <Border Grid.Row="2" Margin="16,0,16,10" Padding="14,12,14,8" CornerRadius="16" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}"
+        <Border Grid.Row="2" Margin="16,0,16,10" Padding="14,12,14,8" CornerRadius="16" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource GlassRim}" BorderThickness="{DynamicResource GlassRimThickness}"
                 Visibility="{Binding HasNowPlaying, Converter={StaticResource Vis}}">
             <v:NowPlayingView/>
         </Border>
 
         <!-- ======================== abas ======================== -->
-        <Border Grid.Row="3" Margin="16,0,16,8" Padding="2" CornerRadius="9" Background="{DynamicResource SegmentTrack}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}"
+        <Border Grid.Row="3" Margin="16,0,16,8" Padding="2" CornerRadius="9" Background="{DynamicResource SegmentTrack}" BorderBrush="{DynamicResource GlassRim}" BorderThickness="{DynamicResource GlassRimThickness}"
                 Visibility="{Binding ShowSetup, Converter={StaticResource NotVis}}">
             <UniformGrid Columns="4">
                 <RadioButton Style="{StaticResource Segment}" Content="Notificações" IsChecked="{Binding IsNotificationsTab}" ToolTip="Ctrl+1"/>

@@ -61,4 +61,6 @@
     <!-- borda de luz dos cartões: só existe no Liquid Glass -->
     <SolidColorBrush x:Key="CardRim" Color="Transparent"/>
     <Thickness x:Key="CardRimThickness">0</Thickness>
+    <SolidColorBrush x:Key="GlassRim" Color="Transparent"/>
+    <Thickness x:Key="GlassRimThickness">0</Thickness>
 </ResourceDictionary>

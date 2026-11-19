@@ -42,13 +42,15 @@
 
     <!-- ===== Liquid Glass como no iOS 26: luz batendo na quina de cima à esquerda e reflexo na de baixo
          à direita; o meio da borda quase some. Vale para a janela, o Mini e todos os cartões. ===== -->
-    <LinearGradientBrush x:Key="CardRim" StartPoint="0,0" EndPoint="1,1">
+    <LinearGradientBrush x:Key="GlassRim" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#66FFFFFF" Offset="0"/>
         <GradientStop Color="#14FFFFFF" Offset="0.35"/>
         <GradientStop Color="#08FFFFFF" Offset="0.6"/>
         <GradientStop Color="#3DFFFFFF" Offset="1"/>
     </LinearGradientBrush>
-    <Thickness x:Key="CardRimThickness">1</Thickness>
+    <Thickness x:Key="GlassRimThickness">1</Thickness>
+    <SolidColorBrush x:Key="CardRim" Color="Transparent"/>
+    <Thickness x:Key="CardRimThickness">0</Thickness>
     <!-- aba/segmento selecionado: uma "gota" de vidro mais clara -->
     <LinearGradientBrush x:Key="SegmentSelected" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#4DFFFFFF" Offset="0"/>

@@ -34,13 +34,15 @@
     <SolidColorBrush x:Key="ToastBg" Color="#F5F6F7FA"/>
 
     <!-- ===== Liquid Glass (claro), como no iOS 26 ===== -->
-    <LinearGradientBrush x:Key="CardRim" StartPoint="0,0" EndPoint="1,1">
+    <LinearGradientBrush x:Key="GlassRim" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#FFFFFFFF" Offset="0"/>
         <GradientStop Color="#80FFFFFF" Offset="0.35"/>
         <GradientStop Color="#14000000" Offset="0.7"/>
         <GradientStop Color="#B3FFFFFF" Offset="1"/>
     </LinearGradientBrush>
-    <Thickness x:Key="CardRimThickness">1</Thickness>
+    <Thickness x:Key="GlassRimThickness">1</Thickness>
+    <SolidColorBrush x:Key="CardRim" Color="Transparent"/>
+    <Thickness x:Key="CardRimThickness">0</Thickness>
     <LinearGradientBrush x:Key="SegmentSelected" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#FFFFFFFF" Offset="0"/>
         <GradientStop Color="#D9FFFFFF" Offset="1"/>

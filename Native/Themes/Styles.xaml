@@ -570,6 +570,7 @@
         <Setter Property="Minimum" Value="0"/>
         <Setter Property="Maximum" Value="1"/>
         <Setter Property="IsMoveToPointEnabled" Value="True"/>
+        <Setter Property="c:SliderDrag.IsEnabled" Value="True"/>
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="Cursor" Value="Hand"/>
         <!-- Tag = espessura da barra -->
