@@ -30,7 +30,8 @@ public partial class MiniWindow : Window
         }
         _vm = vm;
         DataContext = vm;
-        SourceInitialized += (_, _) => WindowEffects.SuppressFrame(this);
+        WindowEffects.RegisterGlass(this);
+        SourceInitialized += (_, _) => WindowEffects.ApplyFrame(this, ThemeManager.IsDark);
         Loaded += (_, _) => PlaceOnScreen();
         LocationChanged += (_, _) => { if (IsLoaded) { _vm.MiniLeft = Math.Round(Left); _vm.MiniTop = Math.Round(Top); } };
         SizeChanged += (_, _) => KeepInside();

@@ -49,6 +49,14 @@
                         <TextBlock Text="{Binding GlassOpacityText}" FontSize="12" HorizontalAlignment="Right"
                                    VerticalAlignment="Center" Foreground="{DynamicResource LabelSecondary}"/>
                     </Grid>
+                    <Grid Margin="0,0,0,10" Visibility="{Binding BlurSupported, Converter={StaticResource Vis}}">
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,56,0">
+                            <TextBlock Text="Vidro fosco" Style="{StaticResource SettingLabel}"/>
+                            <TextBlock Text="Desfoca o que está atrás. Desligado: transparente, nítido" FontSize="12"
+                                       Foreground="{DynamicResource LabelSecondary}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding GlassBlur}"/>
+                    </Grid>
                     <!-- para a direita = mais transparente -->
                     <Slider Style="{StaticResource MediaSlider}" Margin="0,8,0,2" Minimum="0" Maximum="0.75"
                             Value="{Binding GlassTransparency, Mode=TwoWay}"/>

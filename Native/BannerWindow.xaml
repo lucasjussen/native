@@ -16,13 +16,13 @@
         </Grid.RenderTransform>
 
         <!-- sombra separada para o texto não ficar borrado -->
-        <Border CornerRadius="16" Background="{DynamicResource BannerShadow}">
+        <Border CornerRadius="16" Background="{DynamicResource ToastBg}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="26" ShadowDepth="6" Direction="270" Opacity="0.5" Color="Black"/>
             </Border.Effect>
         </Border>
 
-        <Border CornerRadius="16" Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource BannerBorder}" BorderThickness="1"
+        <Border CornerRadius="16" Background="{DynamicResource ToastBg}" BorderBrush="{DynamicResource BannerBorder}" BorderThickness="1"
                 Padding="13,12,14,12" Cursor="Hand" MouseLeftButtonUp="Card_Click">
             <Grid>
                 <Grid.ColumnDefinitions>

@@ -40,9 +40,22 @@ public partial class MainWindow : Window
         _glassFrame.SetResourceReference(Border.BackgroundProperty, "WindowBg");
         _glassFrame.SetResourceReference(Border.BorderBrushProperty, "BannerBorder");
         Content = _glassFrame;
+        WindowEffects.RegisterGlass(this);
+        ThemeManager.GlassChanged += SyncGlassFrame;
+        Closed += (_, _) => ThemeManager.GlassChanged -= SyncGlassFrame;
+        SyncGlassFrame();
 
         // cantos arredondados também no conteúdo (o reflexo e os painéis não vazam pelas pontas)
         RootGrid.SizeChanged += (_, _) => ClipRoot();
+    }
+
+    /// <summary>Com desfoque, o Windows desenha cantos (8 px), borda e sombra; sem ele, a janela desenha os dela.</summary>
+    private void SyncGlassFrame()
+    {
+        if (_glassFrame is null) return;
+        double radius = GlassMaximized ? 0 : ThemeManager.BlurActive ? 8 : 12;
+        _glassFrame.CornerRadius = new CornerRadius(radius);
+        ClipRoot();
     }
 
     private void ClipRoot()
@@ -61,7 +74,7 @@ public partial class MainWindow : Window
         {
             _restoreBounds = null;
             Left = r.Left; Top = r.Top; Width = r.Width; Height = r.Height;
-            _glassFrame!.CornerRadius = new CornerRadius(12);
+            SyncGlassFrame();
             MaxButton.Content = "\uE922";
             MaxButton.ToolTip = "Maximizar";
         }
@@ -70,7 +83,7 @@ public partial class MainWindow : Window
             _restoreBounds = new Rect(Left, Top, Width, Height);
             var area = SystemParameters.WorkArea;
             Left = area.Left; Top = area.Top; Width = area.Width; Height = area.Height;
-            _glassFrame!.CornerRadius = new CornerRadius(0);
+            SyncGlassFrame();
             MaxButton.Content = "\uE923";
             MaxButton.ToolTip = "Restaurar";
         }

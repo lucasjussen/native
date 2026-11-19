@@ -94,7 +94,7 @@ public sealed class MainViewModel : ObservableObject
         PhoneNotification.ExternalOpener = OpenInDesktopApp;
         PhoneNotification.CallBack = n => { SelectedTab = AppTab.Phone; _ = Phone.CallAsync(n.Title); };
 
-        ToggleGroupCommand = new RelayCommand(p => { if (p is NotificationGroup g && g.Items.Count > 1) g.IsExpanded = !g.IsExpanded; });
+        ToggleGroupCommand = new RelayCommand(p => { if (NotificationGroup.Stacking && p is NotificationGroup g && g.Items.Count > 1) g.IsExpanded = !g.IsExpanded; });
         DismissGroupCommand = new RelayCommand(p => { if (p is NotificationGroup g) DismissGroup(g); });
         ClearAllCommand = new RelayCommand(() => { foreach (var g in Groups.ToList()) DismissGroup(g); });
         MirrorCommand = new RelayCommand(ToggleMirror);
@@ -528,6 +528,15 @@ public sealed class MainViewModel : ObservableObject
             Raise(); Raise(nameof(GlassOpacityText));
         }
     }
+
+    /// <summary>Vidro fosco: desfoca o que está atrás (Windows 11).</summary>
+    public bool GlassBlur
+    {
+        get => _settings.GlassBlur;
+        set { _settings.GlassBlur = value; _settings.Save(); ThemeManager.SetGlassBlur(value); Raise(); }
+    }
+
+    public bool BlurSupported => WindowEffects.BlurSupported;
 
     /// <summary>O controle desliza em "transparência" (o contrário da opacidade).</summary>
     public double GlassTransparency

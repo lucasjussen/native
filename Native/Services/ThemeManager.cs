@@ -24,6 +24,30 @@ public static class ThemeManager
 
     public static event Action? GlassChanged;
 
+    /// <summary>Desfoque do que está atrás (vidro fosco). Desligado, o vidro fica só translúcido.</summary>
+    public static bool GlassBlur { get; private set; } = true;
+    public static bool BlurActive => Glass && GlassBlur && WindowEffects.BlurSupported;
+
+    public static void SetGlassBlur(bool on)
+    {
+        GlassBlur = on;
+        Apply(_mode);
+        GlassChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Mini e mini player: com desfoque, o Windows desenha borda, cantos e sombra; sem ele, a janela desenha
+    /// os dela (com margem para a sombra). Os XAML pegam isso por DynamicResource.
+    /// </summary>
+    private static void ApplyFloatLayout()
+    {
+        var r = Application.Current.Resources;
+        bool blur = BlurActive;
+        r["FloatMargin"] = blur ? new Thickness(0) : new Thickness(14, 10, 14, 18);
+        r["FloatRadius"] = blur ? new CornerRadius(8) : new CornerRadius(18);
+        r["FloatShadow"] = blur ? Visibility.Collapsed : Visibility.Visible;
+    }
+
     public static void SetGlass(bool on)
     {
         Glass = on;
@@ -60,8 +84,9 @@ public static class ThemeManager
 
     public static event Action? Changed;
 
-    public static void Initialize(string mode, bool glass = false, double glassOpacity = 0.62)
+    public static void Initialize(string mode, bool glass = false, double glassOpacity = 0.62, bool glassBlur = true)
     {
+        GlassBlur = glassBlur;
         Glass = glass;
         WindowGlassAtStartup = glass;
         GlassOpacity = Math.Clamp(glassOpacity, 0.25, 1);
@@ -100,6 +125,7 @@ public static class ThemeManager
             resources.Insert(at, glass);
         }
 
+        ApplyFloatLayout();
         bool changed = dark != IsDark;
         IsDark = dark;
         foreach (Window w in Application.Current.Windows) WindowEffects.ApplyFrame(w, dark);

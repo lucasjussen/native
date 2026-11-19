@@ -32,6 +32,8 @@ public sealed class AppSettings
     public bool Glass { get; set; }
     /// <summary>Quanto o fundo cobre no Liquid Glass (0,3 = bem transparente, 1 = sólido).</summary>
     public double GlassOpacity { get; set; } = 0.62;
+    /// <summary>Desfocar o que está atrás (vidro fosco, Windows 11).</summary>
+    public bool GlassBlur { get; set; } = true;
     public bool MiniMode { get; set; }
     public double? MiniLeft { get; set; }
     public double? MiniTop { get; set; }

@@ -28,8 +28,87 @@ internal static class WindowEffects
     /// <summary>Barra escura e cantos arredondados do Windows 11.</summary>
     public static void ApplyDarkRounded(Window window) => ApplyFrame(window, ThemeManager.IsDark);
 
+    // ------------------------------------------------------------ Liquid Glass: desfoque real do que está atrás
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct AccentPolicy { public int AccentState; public int AccentFlags; public uint GradientColor; public int AnimationId; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct WindowCompositionAttributeData { public int Attribute; public IntPtr Data; public int SizeOfData; }
+
+    [DllImport("user32.dll")]
+    private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
+    private const int WCA_ACCENT_POLICY = 19;
+    private const int ACCENT_DISABLED = 0;
+    private const int ACCENT_ENABLE_BLURBEHIND = 3;   // desfoque simples: leve e sem o atraso ao arrastar do "acrylic"
+    private const int DWMNCRP_ENABLED = 2;
+    private const int DWMWA_COLOR_DEFAULT = unchecked((int)0xFFFFFFFF);
+
+    /// <summary>Precisa do Windows 11: é ele que arredonda as pontas do desfoque junto com a janela.</summary>
+    public static bool BlurSupported => Environment.OSVersion.Version.Build >= 22000;
+
+    /// <summary>Janelas que participam do vidro fosco (a janela grande transparente, o Mini e o mini player).</summary>
+    private static readonly System.Collections.Generic.HashSet<Window> GlassWindows = new();
+
+    public static void RegisterGlass(Window window)
+    {
+        GlassWindows.Add(window);
+        window.Closed += (_, _) => GlassWindows.Remove(window);
+    }
+
+    /// <summary>
+    /// Liga/desliga o desfoque atrás da janela. Ligado, o Windows 11 arredonda a janela (8 px), desenha a
+    /// borda fina e a sombra dele — por isso essas janelas tiram a própria margem e sombra nesse modo.
+    /// </summary>
+    public static void ApplyBlur(Window window, bool on)
+    {
+        var hwnd = new WindowInteropHelper(window).Handle;
+        if (hwnd == IntPtr.Zero) return;
+        on &= BlurSupported;
+        if (on)
+        {
+            int policy = DWMNCRP_ENABLED;
+            DwmSetWindowAttribute(hwnd, DWMWA_NCRENDERING_POLICY, ref policy, sizeof(int));
+            int round = DWMWCP_ROUND;
+            DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref round, sizeof(int));
+            int border = DWMWA_COLOR_DEFAULT;
+            DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ref border, sizeof(int));
+            int dark = ThemeManager.IsDark ? 1 : 0;
+            DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref dark, sizeof(int));
+        }
+        SetAccent(hwnd, on ? ACCENT_ENABLE_BLURBEHIND : ACCENT_DISABLED);
+        if (!on && window.AllowsTransparency) SuppressFrame(window);
+    }
+
+    private static void SetAccent(IntPtr hwnd, int state)
+    {
+        var accent = new AccentPolicy { AccentState = state };
+        int size = Marshal.SizeOf(accent);
+        IntPtr ptr = Marshal.AllocHGlobal(size);
+        try
+        {
+            Marshal.StructureToPtr(accent, ptr, false);
+            var data = new WindowCompositionAttributeData { Attribute = WCA_ACCENT_POLICY, Data = ptr, SizeOfData = size };
+            SetWindowCompositionAttribute(hwnd, ref data);
+        }
+        catch (Exception)
+        {
+            // Windows sem essa função: fica só translúcido, sem desfoque.
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(ptr);
+        }
+    }
+
     public static void ApplyFrame(Window window, bool dark)
     {
+        if (GlassWindows.Contains(window))
+        {
+            ApplyBlur(window, ThemeManager.BlurActive);
+            return;
+        }
         // Janelas transparentes (banner, mini player) desenham o próprio cartão. Se o Windows 11
         // arredondar e sombrear a janela inteira, aparece um "fantasma" em volta do cartão.
         if (window.AllowsTransparency)

@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## 1.5.2
+
+- **Liquid Glass de verdade (vidro fosco):** no Windows 11, a janela grande, o Mini e o mini player desfocam o que está atrás, com tom, reflexo no topo, borda de luz e cartões de vidro em degradê. Com o desfoque, cantos, borda fina e sombra passam a ser os do próprio Windows.
+- Ajuste **"Vidro fosco"**: desligado, o vidro fica transparente e nítido (para enxergar a série com detalhe).
+- Banners ficam quase sólidos mesmo no vidro, para dar para ler por cima de qualquer coisa.
+- Correção: com "Empilhar por app" desligado, clicar numa notificação abria a pilha "escondida" e ela aparecia aberta ao religar.
+
 ## 1.5.1
 
 - **Liquid Glass de verdade:** a janela grande agora fica translúcida e dá para ver o que está atrás (série, vídeo); texto e ícones continuam nítidos. Vale também para o Mini, banners e mini player.

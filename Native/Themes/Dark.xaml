@@ -57,4 +57,5 @@
     <!-- Liquid Glass desligado: sem brilho, sombra do cartão igual ao cartão -->
     <SolidColorBrush x:Key="GlassSheen" Color="Transparent"/>
     <SolidColorBrush x:Key="BannerShadow" Color="#2C2C2E"/>
+    <SolidColorBrush x:Key="ToastBg" Color="#2C2C2E"/>
 </ResourceDictionary>

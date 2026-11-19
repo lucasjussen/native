@@ -20,14 +20,15 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="14,10,14,18">
-        <Border CornerRadius="18" Background="{DynamicResource BannerShadow}">
+    <Grid Margin="{DynamicResource FloatMargin}">
+        <Border CornerRadius="{DynamicResource FloatRadius}" Background="{DynamicResource BannerShadow}"
+                Visibility="{DynamicResource FloatShadow}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.45" Color="Black"/>
             </Border.Effect>
         </Border>
 
-        <Border x:Name="Card" CornerRadius="18" Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource BannerBorder}"
+        <Border x:Name="Card" CornerRadius="{DynamicResource FloatRadius}" Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource BannerBorder}"
                 BorderThickness="1" MouseLeftButtonDown="Drag">
             <StackPanel>
                 <!-- ================= iPhone ================= -->
@@ -301,10 +302,10 @@
             </StackPanel>
         </Border>
         <!-- Liquid Glass: reflexo no topo (transparente fora do modo vidro) -->
-        <Border CornerRadius="18" Background="{DynamicResource GlassSheen}" IsHitTestVisible="False" Margin="1"/>
+        <Border CornerRadius="{DynamicResource FloatRadius}" Background="{DynamicResource GlassSheen}" IsHitTestVisible="False" Margin="1"/>
 
         <!-- soltar arquivos -->
-        <Border x:Name="DropOverlay" CornerRadius="18" Visibility="Collapsed" IsHitTestVisible="False"
+        <Border x:Name="DropOverlay" CornerRadius="{DynamicResource FloatRadius}" Visibility="Collapsed" IsHitTestVisible="False"
                 Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource Accent}" BorderThickness="2">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Border Width="44" Height="44" CornerRadius="22" Background="{DynamicResource Accent}" HorizontalAlignment="Center">

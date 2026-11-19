@@ -7,7 +7,11 @@
         <GradientStop Color="#17181D" Offset="0.55"/>
         <GradientStop Color="#1F1B29" Offset="1"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="CardBg" Color="#16FFFFFF"/>
+    <!-- cartões de vidro: mais claros em cima, como luz batendo -->
+    <LinearGradientBrush x:Key="CardBg" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#24FFFFFF" Offset="0"/>
+        <GradientStop Color="#12FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
     <SolidColorBrush x:Key="CardHover" Color="#22FFFFFF"/>
     <SolidColorBrush x:Key="CardLayer1" Color="#10FFFFFF"/>
     <SolidColorBrush x:Key="CardLayer2" Color="#09FFFFFF"/>
@@ -33,4 +37,6 @@
         <GradientStop Color="#05FFFFFF" Offset="0.22"/>
         <GradientStop Color="#00FFFFFF" Offset="0.4"/>
     </LinearGradientBrush>
+    <!-- banners: quase sólidos, para ler de relance por cima de qualquer coisa -->
+    <SolidColorBrush x:Key="ToastBg" Color="#F21F2129"/>
 </ResourceDictionary>

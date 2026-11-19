@@ -11,14 +11,15 @@
         UseLayoutRounding="True">
 
     <!-- Mini player flutuante: fica por cima de tudo, arrasta para qualquer canto. -->
-    <Grid Margin="14,10,14,18" x:Name="Card">
-        <Border CornerRadius="18" Background="{DynamicResource BannerShadow}">
+    <Grid Margin="{DynamicResource FloatMargin}" x:Name="Card">
+        <Border CornerRadius="{DynamicResource FloatRadius}" Background="{DynamicResource BannerShadow}"
+                Visibility="{DynamicResource FloatShadow}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.45" Color="Black"/>
             </Border.Effect>
         </Border>
 
-        <Border CornerRadius="18" Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource BannerBorder}" BorderThickness="1"
+        <Border CornerRadius="{DynamicResource FloatRadius}" Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource BannerBorder}" BorderThickness="1"
                 Padding="14,12,14,8" MouseLeftButtonDown="Drag">
             <Grid>
                 <v:NowPlayingView IsCompact="True"
@@ -40,7 +41,7 @@
             </Grid>
         </Border>
         <!-- Liquid Glass: reflexo no topo (transparente fora do modo vidro) -->
-        <Border CornerRadius="18" Background="{DynamicResource GlassSheen}" IsHitTestVisible="False" Margin="1"/>
+        <Border CornerRadius="{DynamicResource FloatRadius}" Background="{DynamicResource GlassSheen}" IsHitTestVisible="False" Margin="1"/>
 
         <!-- botões que aparecem ao passar o mouse, como no PiP do macOS -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7,-7,0,0">
