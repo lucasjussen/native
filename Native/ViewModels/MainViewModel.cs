@@ -508,8 +508,42 @@ public sealed class MainViewModel : ObservableObject
     public bool GlassMode
     {
         get => _settings.Glass;
-        set { _settings.Glass = value; _settings.Save(); ThemeManager.SetGlass(value); Raise(); }
+        set
+        {
+            _settings.Glass = value; _settings.Save(); ThemeManager.SetGlass(value);
+            Raise(); Raise(nameof(GlassNeedsRestart));
+        }
     }
+
+    /// <summary>Quanto o fundo cobre: menos = dá para ver mais o que está atrás (série, vídeo).</summary>
+    public double GlassOpacity
+    {
+        get => _settings.GlassOpacity;
+        set
+        {
+            value = Math.Round(Math.Clamp(value, 0.25, 1), 2);
+            if (Math.Abs(_settings.GlassOpacity - value) < 0.001) return;
+            _settings.GlassOpacity = value; _settings.Save();
+            ThemeManager.SetGlassOpacity(value);
+            Raise(); Raise(nameof(GlassOpacityText));
+        }
+    }
+
+    /// <summary>O controle desliza em "transparência" (o contrário da opacidade).</summary>
+    public double GlassTransparency
+    {
+        get => 1 - GlassOpacity;
+        set { GlassOpacity = 1 - value; Raise(); }
+    }
+
+    public string GlassOpacityText => $"{Math.Round((1 - GlassOpacity) * 100)}% transparente";
+
+    /// <summary>A janela grande só vira vidro de verdade (vendo o que está atrás) depois de reabrir o Native.</summary>
+    public bool GlassNeedsRestart => GlassMode != ThemeManager.WindowGlassAtStartup;
+
+    public event Action? RestartRequested;
+    public ICommand RestartCommand => _restartCommand ??= new RelayCommand(() => RestartRequested?.Invoke());
+    private ICommand? _restartCommand;
 
     public bool AutoCopyCodes
     {

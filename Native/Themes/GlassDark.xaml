@@ -19,8 +19,8 @@
     <SolidColorBrush x:Key="ControlFill" Color="#24FFFFFF"/>
     <SolidColorBrush x:Key="ControlFillHover" Color="#33FFFFFF"/>
     <SolidColorBrush x:Key="SheetBg" Color="#F0262830"/>
-    <SolidColorBrush x:Key="BannerBg" Color="#E01F2129"/>
-    <SolidColorBrush x:Key="BannerShadow" Color="#55000000"/>
+    <SolidColorBrush x:Key="BannerBg" Color="#1F2129"/>
+    <SolidColorBrush x:Key="BannerShadow" Color="#000000"/>
     <!-- borda de luz: forte em cima, some embaixo -->
     <LinearGradientBrush x:Key="BannerBorder" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#5CFFFFFF" Offset="0"/>

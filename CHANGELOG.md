@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## 1.5.1
+
+- **Liquid Glass de verdade:** a janela grande agora fica translúcida e dá para ver o que está atrás (série, vídeo); texto e ícones continuam nítidos. Vale também para o Mini, banners e mini player.
+- **Transparência ajustável** (Ajustes › Aparência), de sólido até 75% transparente, aplicada na hora.
+- O Windows só deixa uma janela ficar transparente antes de abrir: ao ligar o vidro aparece "Reabrir agora", que fecha e abre o Native sozinho.
+- Janela de vidro maximizada ocupa só a área de trabalho (não cobre a barra de tarefas).
+
 ## 1.5.0
 
 - **Com o iPhone em Foco/Não Perturbe:** o iPhone continua mandando as notificações, só que marcadas como silenciosas, e o Native ignorava essas no banner. Agora elas viram banner no PC também (Ajustes › "Receber com o iPhone em Foco", ligado por padrão).

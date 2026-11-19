@@ -17,20 +17,54 @@ public static class ThemeManager
 
     /// <summary>Liquid Glass: uma camada de pincéis translúcidos por cima da paleta clara/escura.</summary>
     public static bool Glass { get; private set; }
+    public static double GlassOpacity { get; private set; } = 0.62;
+
+    /// <summary>A janela principal só fica transparente se abriu com o vidro ligado (o Windows não troca isso com ela aberta).</summary>
+    public static bool WindowGlassAtStartup { get; private set; }
+
+    public static event Action? GlassChanged;
 
     public static void SetGlass(bool on)
     {
         Glass = on;
         Apply(_mode);
+        GlassChanged?.Invoke();
     }
+
+    public static void SetGlassOpacity(double opacity)
+    {
+        GlassOpacity = Math.Clamp(opacity, 0.25, 1);
+        if (!Glass) return;
+        // Só troca os três fundos no dicionário que já está aplicado: leve o bastante para arrastar o controle.
+        var glass = Application.Current.Resources.MergedDictionaries.FirstOrDefault(d => d.Source is { } g && g.OriginalString.Contains("Glass"));
+        if (glass is not null) Tint(glass);
+    }
+
+    private static void Tint(ResourceDictionary glass)
+    {
+        var original = new ResourceDictionary { Source = glass.Source };
+        foreach (var key in SeeThrough)
+            if (original[key] is System.Windows.Media.Brush b)
+            {
+                var c = b.Clone();
+                c.Opacity = GlassOpacity;
+                c.Freeze();
+                glass[key] = c;
+            }
+    }
+
+    // Fundos que ficam translúcidos (o texto e os ícones continuam 100%).
+    private static readonly string[] SeeThrough = { "WindowBg", "BannerBg", "BannerShadow" };
 
     public static bool IsDark { get; private set; } = true;
 
     public static event Action? Changed;
 
-    public static void Initialize(string mode, bool glass = false)
+    public static void Initialize(string mode, bool glass = false, double glassOpacity = 0.62)
     {
         Glass = glass;
+        WindowGlassAtStartup = glass;
+        GlassOpacity = Math.Clamp(glassOpacity, 0.25, 1);
         SystemEvents.UserPreferenceChanged += (_, e) =>
         {
             if (e.Category is UserPreferenceCategory.General or UserPreferenceCategory.Color && _mode == "sistema")
@@ -61,7 +95,9 @@ public static class ThemeManager
         if (Glass)
         {
             int at = resources.IndexOf(palette) + 1;
-            resources.Insert(at, new ResourceDictionary { Source = dark ? GlassDarkUri : GlassLightUri });
+            var glass = new ResourceDictionary { Source = dark ? GlassDarkUri : GlassLightUri };
+            Tint(glass);
+            resources.Insert(at, glass);
         }
 
         bool changed = dark != IsDark;

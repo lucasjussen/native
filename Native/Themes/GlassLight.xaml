@@ -14,8 +14,8 @@
     <SolidColorBrush x:Key="Separator" Color="#16000000"/>
     <SolidColorBrush x:Key="FieldBg" Color="#B3FFFFFF"/>
     <SolidColorBrush x:Key="SheetBg" Color="#F5F8F9FC"/>
-    <SolidColorBrush x:Key="BannerBg" Color="#E8F6F7FA"/>
-    <SolidColorBrush x:Key="BannerShadow" Color="#40000000"/>
+    <SolidColorBrush x:Key="BannerBg" Color="#F6F7FA"/>
+    <SolidColorBrush x:Key="BannerShadow" Color="#000000"/>
     <LinearGradientBrush x:Key="BannerBorder" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#FFFFFFFF" Offset="0"/>
         <GradientStop Color="#33FFFFFF" Offset="0.5"/>

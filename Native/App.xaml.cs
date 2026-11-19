@@ -59,6 +59,12 @@ public partial class App : Application
 
     private void Start(StartupEventArgs e)
     {
+        // "Reabrir agora": espera a instância anterior fechar (Bluetooth e porta liberados) antes de seguir.
+        int wi = Array.IndexOf(e.Args, "--wait-pid");
+        if (wi >= 0 && wi + 1 < e.Args.Length && int.TryParse(e.Args[wi + 1], out int oldPid))
+        {
+            try { System.Diagnostics.Process.GetProcessById(oldPid).WaitForExit(15000); } catch { }
+        }
 
         _singleInstance = new Mutex(true, InstanceName, out bool isFirst);
         var toSend = FilesToSend(e.Args);
@@ -77,7 +83,7 @@ public partial class App : Application
         Log.Info("App", $"Iniciando {typeof(App).Assembly.GetName().Version?.ToString(3)} no Windows {Environment.OSVersion.Version}");
 
         var settings = AppSettings.Load();
-        ThemeManager.Initialize(settings.Theme, settings.Glass);
+        ThemeManager.Initialize(settings.Theme, settings.Glass, settings.GlassOpacity);
 
         var catalog = new AppCatalog(settings);
         _client = new AncsClient();
@@ -92,6 +98,7 @@ public partial class App : Application
         catalog.AppNameResolver = id => _client.GetAppDisplayNameAsync(id);
 
         _main = new MainWindow { DataContext = _vm };
+        _vm.RestartRequested += Restart;
         _main.Closing += (_, args) =>
         {
             if (_exiting) return;
@@ -477,6 +484,24 @@ public partial class App : Application
             _pip = null;
             pip.Close();
         }
+    }
+
+    /// <summary>Fecha e abre de novo (para aplicar o vidro na janela principal).</summary>
+    private void Restart()
+    {
+        var exe = Environment.ProcessPath;
+        if (exe is null) return;
+        try
+        {
+            var args = $"--wait-pid {Environment.ProcessId}" + (_vm?.IsMiniMode == true ? "" : " --full");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, args) { UseShellExecute = false });
+        }
+        catch (Exception ex)
+        {
+            Log.Error("App", "Não deu para reabrir", ex);
+            return;
+        }
+        ExitApp();
     }
 
     private void ExitApp()

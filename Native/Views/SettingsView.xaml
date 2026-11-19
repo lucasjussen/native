@@ -41,6 +41,30 @@
                     <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding GlassMode}"/>
                 </Grid>
             </Border>
+            <Border Style="{StaticResource Card}" Margin="0,8,0,0" Padding="14,10"
+                    Visibility="{Binding GlassMode, Converter={StaticResource Vis}}">
+                <StackPanel>
+                    <Grid>
+                        <TextBlock Text="Transparência" Style="{StaticResource SettingLabel}"/>
+                        <TextBlock Text="{Binding GlassOpacityText}" FontSize="12" HorizontalAlignment="Right"
+                                   VerticalAlignment="Center" Foreground="{DynamicResource LabelSecondary}"/>
+                    </Grid>
+                    <!-- para a direita = mais transparente -->
+                    <Slider Style="{StaticResource MediaSlider}" Margin="0,8,0,2" Minimum="0" Maximum="0.75"
+                            Value="{Binding GlassTransparency, Mode=TwoWay}"/>
+                    <TextBlock Text="Dica: fixe o Native (alfinete) por cima da série e deixe uns 40–50%." FontSize="11.5"
+                               Foreground="{DynamicResource LabelTertiary}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,8,0,0" Padding="14,10"
+                    Visibility="{Binding GlassNeedsRestart, Converter={StaticResource Vis}}">
+                <Grid>
+                    <TextBlock Text="Reabra o Native para a janela ficar transparente." TextWrapping="Wrap" Margin="0,0,110,0"
+                               VerticalAlignment="Center" FontSize="12.5" Foreground="{DynamicResource LabelBody}"/>
+                    <Button Style="{StaticResource PillButton}" Content="Reabrir agora" HorizontalAlignment="Right"
+                            VerticalAlignment="Center" Command="{Binding RestartCommand}"/>
+                </Grid>
+            </Border>
 
             <!-- notificações -->
             <TextBlock Text="NOTIFICAÇÕES" Style="{StaticResource SectionHeader}"/>

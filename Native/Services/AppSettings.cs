@@ -30,6 +30,8 @@ public sealed class AppSettings
     public bool MiniPinned { get; set; } = true;
     /// <summary>Aparência Liquid Glass (vidro translúcido, leve).</summary>
     public bool Glass { get; set; }
+    /// <summary>Quanto o fundo cobre no Liquid Glass (0,3 = bem transparente, 1 = sólido).</summary>
+    public double GlassOpacity { get; set; } = 0.62;
     public bool MiniMode { get; set; }
     public double? MiniLeft { get; set; }
     public double? MiniTop { get; set; }

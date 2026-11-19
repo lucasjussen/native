@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Native.Services;
 using Native.ViewModels;
@@ -8,10 +9,72 @@ namespace Native;
 
 public partial class MainWindow : Window
 {
+    private Border? _glassFrame;
+    private Rect? _restoreBounds;
+
     public MainWindow()
     {
         InitializeComponent();
+        if (ThemeManager.WindowGlassAtStartup) EnableGlassWindow();
         SourceInitialized += (_, _) => WindowEffects.ApplyDarkRounded(this);
+    }
+
+    /// <summary>
+    /// Liquid Glass de verdade: a janela passa a ter fundo translúcido e dá para ver o que está atrás
+    /// (série, vídeo). O Windows só permite isso antes de a janela abrir, por isso vale a partir da abertura.
+    /// O texto e os ícones continuam 100% opacos; só os fundos ficam transparentes.
+    /// </summary>
+    private void EnableGlassWindow()
+    {
+        WindowStyle = WindowStyle.None;
+        AllowsTransparency = true;
+        Background = System.Windows.Media.Brushes.Transparent;
+
+        Content = null;
+        _glassFrame = new Border
+        {
+            CornerRadius = new CornerRadius(12),
+            BorderThickness = new Thickness(1),
+            Child = RootGrid,
+        };
+        _glassFrame.SetResourceReference(Border.BackgroundProperty, "WindowBg");
+        _glassFrame.SetResourceReference(Border.BorderBrushProperty, "BannerBorder");
+        Content = _glassFrame;
+
+        // cantos arredondados também no conteúdo (o reflexo e os painéis não vazam pelas pontas)
+        RootGrid.SizeChanged += (_, _) => ClipRoot();
+    }
+
+    private void ClipRoot()
+    {
+        if (_glassFrame is null) return;
+        double r = Math.Max(0, _glassFrame.CornerRadius.TopLeft - 1);
+        RootGrid.Clip = new System.Windows.Media.RectangleGeometry(new Rect(RootGrid.RenderSize), r, r);
+    }
+
+    private bool GlassMaximized => _restoreBounds is not null;
+
+    /// <summary>Janela transparente maximizada cobriria a barra de tarefas: preenche só a área de trabalho.</summary>
+    private void ToggleGlassMaximize()
+    {
+        if (_restoreBounds is { } r)
+        {
+            _restoreBounds = null;
+            Left = r.Left; Top = r.Top; Width = r.Width; Height = r.Height;
+            _glassFrame!.CornerRadius = new CornerRadius(12);
+            MaxButton.Content = "\uE922";
+            MaxButton.ToolTip = "Maximizar";
+        }
+        else
+        {
+            _restoreBounds = new Rect(Left, Top, Width, Height);
+            var area = SystemParameters.WorkArea;
+            Left = area.Left; Top = area.Top; Width = area.Width; Height = area.Height;
+            _glassFrame!.CornerRadius = new CornerRadius(0);
+            MaxButton.Content = "\uE923";
+            MaxButton.ToolTip = "Restaurar";
+        }
+        ClipRoot();
     }
 
     private MainViewModel? Vm => DataContext as MainViewModel;
@@ -20,12 +83,25 @@ public partial class MainWindow : Window
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
-    private void Maximize_Click(object sender, RoutedEventArgs e) =>
+    private void Maximize_Click(object sender, RoutedEventArgs e)
+    {
+        if (_glassFrame is not null) { ToggleGlassMaximize(); return; }
         WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
 
     protected override void OnStateChanged(EventArgs e)
     {
         base.OnStateChanged(e);
+        if (_glassFrame is not null)
+        {
+            // duplo clique na barra de título: maximiza do nosso jeito
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowState = WindowState.Normal;
+                if (!GlassMaximized) ToggleGlassMaximize();
+            }
+            return;
+        }
         bool max = WindowState == WindowState.Maximized;
         // Maximizada sem a moldura do Windows, a janela passa um pouco da tela: compensa a borda.
         RootGrid.Margin = max ? new Thickness(7) : new Thickness(0);
