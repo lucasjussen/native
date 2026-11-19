@@ -1,5 +1,10 @@
 # Histórico de versões
 
+## 1.4.2
+
+- **Arrastar arquivos:** a janela inteira não vira mais alvo. Ao arrastar algo para o Native, ele abre a aba Arquivos e só a área "Arraste aqui" acende em azul ("Solte aqui"). Com o cursor em cima dela, a área preenche e o ícone cresce ("Solte para mandar ao iPhone"). Fora dela o cursor mostra que não dá para soltar.
+- Se o arraste sai da janela sem soltar, o Native volta para a aba em que você estava.
+
 ## 1.4.1
 
 - **Página do iPhone:** o aviso "Baixado" que ficava preso e cortado no fim da tela (no app da Tela de Início) foi removido.

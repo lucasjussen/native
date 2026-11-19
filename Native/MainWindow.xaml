@@ -11,8 +11,8 @@
         Icon="pack://application:,,,/Assets/Native.ico"
         UseLayoutRounding="True"
         Topmost="{Binding KeepOnTop, Mode=OneWay}"
-        AllowDrop="True" PreviewDragEnter="Window_DragEnter" PreviewDragOver="Window_DragOver"
-        PreviewDragLeave="Window_DragLeave" PreviewDrop="Window_Drop">
+        AllowDrop="True" PreviewDragEnter="Window_DragEnter" PreviewDragOver="Window_PreviewDragOver" DragOver="Window_DragOver"
+        PreviewDragLeave="Window_DragLeave" Drop="Window_Drop">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="44" ResizeBorderThickness="6" GlassFrameThickness="0"
@@ -194,25 +194,10 @@
                                 Visibility="{Binding DataContext.IsMessagesTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Vis}}"/>
                 <v:PhoneView DataContext="{Binding Phone}"
                              Visibility="{Binding DataContext.IsPhoneTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Vis}}"/>
-                <v:FilesView DataContext="{Binding Files}"
+                <v:FilesView x:Name="FilesPage" DataContext="{Binding Files}"
                              Visibility="{Binding DataContext.IsFilesTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Vis}}"/>
                 <v:SettingsView Visibility="{Binding IsSettingsTab, Converter={StaticResource Vis}}"/>
             </Grid>
-        </Grid>
-
-        <!-- ======================== soltar arquivos ======================== -->
-        <Grid x:Name="DropOverlay" Grid.RowSpan="5" Visibility="Collapsed" IsHitTestVisible="False">
-            <Border Background="{DynamicResource WindowBg}" Opacity="0.92" CornerRadius="10"/>
-            <Rectangle Margin="14" RadiusX="16" RadiusY="16" Stroke="{DynamicResource Accent}" StrokeThickness="2" StrokeDashArray="6 4"/>
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Width="64" Height="64" CornerRadius="32" Background="{DynamicResource Accent}" HorizontalAlignment="Center">
-                    <TextBlock Text="&#xE898;" FontFamily="{StaticResource IconFont}" FontSize="28" Foreground="White"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <TextBlock Text="Soltar para mandar ao iPhone" FontFamily="{StaticResource DisplayFont}" FontSize="17" FontWeight="SemiBold"
-                           HorizontalAlignment="Center" Margin="0,14,0,4"/>
-                <TextBlock Text="Aparece no Native do iPhone" Foreground="{DynamicResource LabelSecondary}" HorizontalAlignment="Center"/>
-            </StackPanel>
         </Grid>
 
         <!-- ======================== painel (sheet) ======================== -->
