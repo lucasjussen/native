@@ -22,6 +22,9 @@ public sealed class AppSettings
     public bool AirPlayAlwaysOn { get; set; }
     public bool SyncContacts { get; set; } = true;
     public bool KeepOnTop { get; set; }
+    public bool MiniMode { get; set; }
+    public double? MiniLeft { get; set; }
+    public double? MiniTop { get; set; }
     public double? PipLeft { get; set; }
     public double? PipTop { get; set; }
 

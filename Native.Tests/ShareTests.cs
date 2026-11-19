@@ -146,6 +146,20 @@ public static class ShareTests
             Check.True(full.Content.Headers.ContentDisposition?.DispositionType == "attachment", "baixa como anexo");
             Check.Equal(item.Id, delivered?.Id, "marcado como entregue");
 
+            // "Baixar tudo": vários arquivos num .zip só
+            var doc2 = Path.Combine(folder, "planilha.xlsx");
+            await File.WriteAllBytesAsync(doc2, photo[..5000]);
+            var item2 = server.OfferFile(doc2);
+            var zipResp = await http.GetAsync($"{baseUrl}/api/zip?k={token}&ids={item.Id},{item2.Id}");
+            Check.Equal(HttpStatusCode.OK, zipResp.StatusCode, "zip");
+            using (var zip = new System.IO.Compression.ZipArchive(await zipResp.Content.ReadAsStreamAsync()))
+            {
+                Check.Equal(2, zip.Entries.Count, "dois arquivos no zip");
+                Check.True(zip.GetEntry("planilha.xlsx") is { Length: 5000 }, "conteúdo dentro do zip");
+            }
+            Check.True(server.Outbox.First(i => i.Id == item2.Id).Delivered, "zip marca como entregue");
+            server.Remove(item2.Id);
+
             await http.PostAsync($"{baseUrl}/api/remove/{item.Id}?k={token}", null);
             Check.Equal(0, server.Outbox.Count, "removido pelo iPhone");
             Check.Equal(HttpStatusCode.NotFound, (await http.GetAsync($"{baseUrl}/api/file/{item.Id}?k={token}")).StatusCode, "não existe mais");

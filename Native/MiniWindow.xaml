@@ -1,0 +1,224 @@
+<Window x:Class="Native.MiniWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:Native.Controls"
+        Title="Native"
+        Width="352" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" ShowActivated="False"
+        Foreground="{DynamicResource LabelPrimary}"
+        FontFamily="{StaticResource UiFont}" FontSize="13"
+        UseLayoutRounding="True" AllowDrop="True"
+        PreviewDragOver="Window_DragOver" PreviewDragLeave="Window_DragLeave" PreviewDrop="Window_Drop">
+
+    <!-- Mini Native: o essencial do iPhone, fixo por cima de tudo. DataContext = MainViewModel. -->
+    <Window.Resources>
+        <Style x:Key="MiniIcon" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="14,10,14,18">
+        <Border CornerRadius="18" Background="{DynamicResource BannerBg}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.45" Color="Black"/>
+            </Border.Effect>
+        </Border>
+
+        <Border x:Name="Card" CornerRadius="18" Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource BannerBorder}"
+                BorderThickness="1" MouseLeftButtonDown="Drag">
+            <StackPanel>
+                <!-- ================= iPhone ================= -->
+                <Grid Margin="14,12,10,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Width="22" Height="38" CornerRadius="6" BorderThickness="1.8" BorderBrush="{DynamicResource PhoneOutline}"
+                            VerticalAlignment="Center">
+                        <Border Width="8" Height="2.6" CornerRadius="1.3" Background="{DynamicResource PhoneOutline}"
+                                VerticalAlignment="Top" Margin="0,3,0,0"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="12,0,6,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DeviceName}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <Ellipse Width="7" Height="7" VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="{DynamicResource SystemOrange}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding StatusKind}" Value="ok">
+                                                <Setter Property="Fill" Value="{DynamicResource SystemGreen}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding StatusKind}" Value="problem">
+                                                <Setter Property="Fill" Value="{DynamicResource SystemRed}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="{DynamicResource LabelSecondary}"
+                                       Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="120"/>
+
+                            <!-- bateria -->
+                            <StackPanel Orientation="Horizontal" Margin="9,0,0,0" VerticalAlignment="Center" Background="Transparent"
+                                        ToolTip="{Binding BatteryTooltip}" Visibility="{Binding HasBattery, Converter={StaticResource Vis}}">
+                                <TextBlock Text="{Binding BatteryText}" FontSize="12" Foreground="{DynamicResource LabelSecondary}"
+                                           Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                <Grid Width="24" Height="12" VerticalAlignment="Center">
+                                    <Border Width="22" HorizontalAlignment="Left" CornerRadius="3.5"
+                                            BorderThickness="1.2" BorderBrush="{DynamicResource BatteryOutline}"/>
+                                    <Border Height="7" HorizontalAlignment="Left" Margin="2.5,0,0,0" CornerRadius="1.8"
+                                            Width="{Binding BatteryFillWidth}">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource BatteryFill}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding BatteryLow}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource SystemRed}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ShowChargeBolt}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource SystemGreen}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                    <Border Width="1.6" Height="4" HorizontalAlignment="Right" CornerRadius="0,1,1,0"
+                                            Background="{DynamicResource BatteryOutline}"/>
+                                </Grid>
+                                <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}" FontSize="11" Margin="3,0,0,0"
+                                           VerticalAlignment="Center" Foreground="{DynamicResource SystemGreen}"
+                                           Visibility="{Binding ShowChargeBolt, Converter={StaticResource Vis}}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="&#xE708;" Command="{Binding ToggleDoNotDisturbCommand}" ToolTip="{Binding DoNotDisturbTooltip}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource MiniIcon}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DoNotDisturb}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource SystemPurple}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Style="{StaticResource MiniIcon}" Content="&#xE740;" Click="Expand_Click" ToolTip="Abrir o Native completo"/>
+                        <Button Style="{StaticResource MiniIcon}" Content="&#xE921;" Click="Hide_Click"
+                                ToolTip="Esconder (volta pelo ícone da bandeja ou Ctrl + Alt + N)"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ================= tocando agora ================= -->
+                <Border Height="1" Background="{DynamicResource Separator}" Visibility="{Binding HasNowPlaying, Converter={StaticResource Vis}}"/>
+                <Grid Margin="14,10,10,10" Visibility="{Binding HasNowPlaying, Converter={StaticResource Vis}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="34" Height="34" CornerRadius="8">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FF375F" Offset="0"/>
+                                <GradientStop Color="#BF5AF2" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="&#xE8D6;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="10,0,6,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding TrackTitle}" FontWeight="SemiBold" FontSize="12.5" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding TrackArtist}" FontSize="11.5" Foreground="{DynamicResource LabelSecondary}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource MediaButton}" Width="30" Height="30" FontSize="13" Content="&#xE892;"
+                                Command="{Binding PreviousTrackCommand}" ToolTip="Anterior"/>
+                        <Button Style="{StaticResource MediaButton}" Width="32" Height="32" FontSize="16" Content="{Binding PlayPauseGlyph}"
+                                Command="{Binding PlayPauseCommand}" ToolTip="Tocar/Pausar"/>
+                        <Button Style="{StaticResource MediaButton}" Width="30" Height="30" FontSize="13" Content="&#xE893;"
+                                Command="{Binding NextTrackCommand}" ToolTip="Próxima"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ================= notificações ================= -->
+                <Border Height="1" Background="{DynamicResource Separator}"/>
+                <Grid>
+                    <!-- vazio -->
+                    <StackPanel Orientation="Horizontal" Margin="16,14" Visibility="{Binding HasNotifications, Converter={StaticResource NotVis}}">
+                        <TextBlock Text="&#xEA8F;" FontFamily="{StaticResource IconFont}" FontSize="13" Foreground="{DynamicResource LabelTertiary}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Sem notificações" Margin="9,0,0,0" FontSize="12.5" Foreground="{DynamicResource LabelSecondary}"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding RecentNotifications}" Margin="0,4,0,4">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="Row" Background="Transparent" Cursor="Hand" MouseLeftButtonUp="Notification_Click">
+                                    <Border x:Name="Hover" Margin="6,0" CornerRadius="10" Background="{DynamicResource TitleHover}" Opacity="0"/>
+                                    <Grid Margin="14,7,8,7">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <c:AppIconView App="{Binding App}" Width="28" Height="28" VerticalAlignment="Top" Margin="0,1,0,0"/>
+                                        <StackPanel Grid.Column="1" Margin="10,0,4,0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="12.5" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding TimeLabel}" FontSize="11" Margin="6,1,0,0"
+                                                           Foreground="{DynamicResource LabelSecondary}"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding Message}" FontSize="12" Foreground="{DynamicResource LabelBody}"
+                                                       TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                                        </StackPanel>
+                                        <Button x:Name="Dismiss" Grid.Column="2" Style="{StaticResource CircleButton}" Content="&#xE8BB;"
+                                                VerticalAlignment="Center" Visibility="Hidden" Click="Dismiss_Click" ToolTip="Limpar (também no iPhone)"/>
+                                    </Grid>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Hover" Property="Opacity" Value="1"/>
+                                        <Setter TargetName="Dismiss" Property="Visibility" Value="Visible"/>
+                                    </Trigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+
+                <!-- rodapé -->
+                <Grid Margin="16,0,12,10" Visibility="{Binding HasNotifications, Converter={StaticResource Vis}}">
+                    <TextBlock Text="{Binding MoreNotificationsText}" FontSize="11.5" Foreground="{DynamicResource LabelSecondary}"
+                               VerticalAlignment="Center"/>
+                    <Button Style="{StaticResource TextButton}" HorizontalAlignment="Right" FontSize="12" Content="Limpar tudo"
+                            Command="{Binding ClearAllCommand}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- soltar arquivos -->
+        <Border x:Name="DropOverlay" CornerRadius="18" Visibility="Collapsed" IsHitTestVisible="False"
+                Background="{DynamicResource BannerBg}" BorderBrush="{DynamicResource Accent}" BorderThickness="2">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border Width="44" Height="44" CornerRadius="22" Background="{DynamicResource Accent}" HorizontalAlignment="Center">
+                    <TextBlock Text="&#xE898;" FontFamily="{StaticResource IconFont}" FontSize="20" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="Soltar para mandar ao iPhone" FontWeight="SemiBold" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

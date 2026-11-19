@@ -103,6 +103,7 @@ public sealed class MainViewModel : ObservableObject
         CopyCodeCommand = new RelayCommand(p => { if (p is PhoneNotification n) CopyCode(n); });
         ToggleDoNotDisturbCommand = new RelayCommand(() => DoNotDisturb = !DoNotDisturb);
         ToggleKeepOnTopCommand = new RelayCommand(() => KeepOnTop = !KeepOnTop);
+        ToggleMiniCommand = new RelayCommand(() => IsMiniMode = !IsMiniMode);
         ToggleSettingsCommand = new RelayCommand(() => SelectedTab = SelectedTab == AppTab.Settings ? _tabBeforeSettings : AppTab.Settings);
         PlayPauseCommand = new RelayCommand(() => SendMedia(MediaCommand.TogglePlayPause));
         NextTrackCommand = new RelayCommand(() => SendMedia(MediaCommand.NextTrack));
@@ -603,6 +604,7 @@ public sealed class MainViewModel : ObservableObject
     public ICommand ToggleDoNotDisturbCommand { get; }
     public ICommand ToggleKeepOnTopCommand { get; }
     public ICommand ToggleSettingsCommand { get; }
+    public ICommand ToggleMiniCommand { get; }
 
     /// <summary>Fixar: a janela fica por cima de tudo e não some ao clicar em outro programa.</summary>
     public bool KeepOnTop
@@ -888,13 +890,49 @@ public sealed class MainViewModel : ObservableObject
         int target = others.FindIndex(g => g.LatestTime < group.LatestTime);
         if (target < 0) target = others.Count;
         if (target != current) Groups.Move(current, target);
+        RefreshRecent();
     }
 
     private void RaiseCounts()
     {
         Raise(nameof(HasNotifications));
         Raise(nameof(IsEmpty));
+        RefreshRecent();
     }
+
+    // ------------------------------------------------------------ mini Native
+
+    /// <summary>As notificações mais novas de todos os apps, para o mini Native.</summary>
+    public ObservableCollection<PhoneNotification> RecentNotifications { get; } = new();
+    public int NotificationCount => Groups.Sum(g => g.Items.Count);
+    public string MoreNotificationsText => NotificationCount > RecentNotifications.Count
+        ? $"+ {NotificationCount - RecentNotifications.Count} no Native" : "";
+
+    private void RefreshRecent()
+    {
+        var top = Groups.SelectMany(g => g.Items).OrderByDescending(n => n.ReceivedAt).Take(4).ToList();
+        if (top.SequenceEqual(RecentNotifications)) { Raise(nameof(NotificationCount)); Raise(nameof(MoreNotificationsText)); return; }
+        RecentNotifications.Clear();
+        foreach (var n in top) RecentNotifications.Add(n);
+        Raise(nameof(NotificationCount));
+        Raise(nameof(MoreNotificationsText));
+    }
+
+    private bool _isMiniMode;
+    /// <summary>Mini Native: uma janelinha fixa com o essencial do iPhone, no lugar da janela grande.</summary>
+    public bool IsMiniMode
+    {
+        get => _isMiniMode;
+        set
+        {
+            if (!Set(ref _isMiniMode, value)) return;
+            if (!_settings.ReadOnly) { _settings.MiniMode = value; _settings.Save(); }
+        }
+    }
+
+    public bool StartInMiniMode => _settings.MiniMode;
+    public double? MiniLeft { get => _settings.MiniLeft; set { _settings.MiniLeft = value; _settings.Save(); } }
+    public double? MiniTop { get => _settings.MiniTop; set { _settings.MiniTop = value; _settings.Save(); } }
 
     private void SendMedia(MediaCommand command) => _ = _client.SendMediaCommandAsync(command);
 

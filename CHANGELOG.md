@@ -1,5 +1,14 @@
 # Histórico de versões
 
+## 1.4.0 — 19/11/2026
+
+- **Mini Native:** botão novo na barra de título (e na bandeja). Troca a janela grande por uma janelinha fixa por cima de tudo, com o iPhone (conexão, bateria, carregando), o que está tocando com controles e as 4 últimas notificações. Clicar numa notificação abre o Native completo; arrastar arquivos para o mini manda para o iPhone. Ele lembra onde ficou e abre assim da próxima vez.
+- **Native no iPhone, redesenhado:**
+  - Cada arquivo mostra o estado: botão **Baixar**, anel de progresso enquanto baixa e um **✓ verde "baixado"** quando termina. O iPhone lembra o que já foi baixado, mesmo fechando o app.
+  - **Baixar tudo**: junta os arquivos pendentes num .zip só (o iOS não deixa um site baixar vários arquivos seguidos).
+  - Aviso flutuante embaixo ("Baixado · Faltam 3", "3 arquivos no computador"), contador de pendentes e **Limpar baixados**.
+  - Ícones coloridos por tipo (PDF, Word, Excel, PowerPoint, vídeo...), miniatura das fotos e progresso também no envio para o PC.
+
 ## 1.3.3 — 19/11/2026
 
 - **Corrigido:** aparecia um contorno escuro ("fantasma") em volta do banner de notificação. O Windows 11 estava pondo moldura, borda e sombra na janela transparente inteira; agora o banner e o mini player desenham só o próprio cartão.

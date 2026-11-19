@@ -34,6 +34,7 @@ public partial class App : Application
     private MainWindow? _main;
     private BannerWindow? _banner;
     private PipWindow? _pip;
+    private MiniWindow? _mini;
     private Forms.ToolStripMenuItem? _pipMenuItem;
     private GlobalHotKey? _hotKey;
     private bool _exiting;
@@ -113,6 +114,7 @@ public partial class App : Application
         _vm.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == nameof(MainViewModel.IsPipOpen)) SyncPip();
+            if (args.PropertyName == nameof(MainViewModel.IsMiniMode)) SyncMini();
         };
 
         CreateTray();
@@ -128,7 +130,9 @@ public partial class App : Application
             Dispatcher.InvokeAsync(() => _vm?.Files.RefreshNetwork());
         ListenForFilesToSend();
 
-        if (!e.Args.Contains("--minimized")) _main.Show();
+        if (_vm.StartInMiniMode && !e.Args.Contains("--full")) _vm.IsMiniMode = true;   // abre como estava
+        else if (e.Args.Contains("--mini")) _vm.IsMiniMode = true;
+        else if (!e.Args.Contains("--minimized")) _main.Show();
         if (toSend.Length > 0) Dispatcher.InvokeAsync(() => ReceiveSendRequest(toSend), DispatcherPriority.ApplicationIdle);
 
         if (e.Args.Contains("--demo"))
@@ -190,6 +194,12 @@ public partial class App : Application
             if (_vm is not null) _vm.IsPipOpen = !_vm.IsPipOpen;
         });
         menu.Items.Add(_pipMenuItem);
+
+        var miniItem = new Forms.ToolStripMenuItem("Mini Native (fixo na tela)", null, (_, _) =>
+        {
+            if (_vm is not null) _vm.IsMiniMode = !_vm.IsMiniMode;
+        });
+        menu.Items.Add(miniItem);
         menu.Items.Add(new Forms.ToolStripMenuItem("Enviar arquivos para o iPhone…", null, (_, _) =>
         {
             ShowTab(AppTab.Files);
@@ -218,6 +228,7 @@ public partial class App : Application
             _dndMenuItem.Checked = _vm.DoNotDisturb;
             pinItem.Checked = _vm.KeepOnTop;
             _pipMenuItem.Checked = _vm.IsPipOpen;
+            miniItem.Checked = _vm.IsMiniMode;
             _mirrorMenuItem.Text = _vm.IsMirroring ? "Parar espelhamento" : "Espelhar iPhone";
             _statusMenuItem.Text = _vm.IsConnected
                 ? $"{_vm.DeviceName} · {(_vm.HasBattery ? _vm.BatteryText : "conectado")}"
@@ -249,6 +260,12 @@ public partial class App : Application
     private void ToggleMain()
     {
         if (_main is null) return;
+        if (_vm is { IsMiniMode: true } && _mini is not null)
+        {
+            if (_mini.IsVisible) _mini.Hide();
+            else _mini.Show();
+            return;
+        }
         if (_main.IsVisible && _main.IsActive)
         {
             _main.Hide();
@@ -260,6 +277,11 @@ public partial class App : Application
     private void ShowMain(bool popover)
     {
         if (_main is null) return;
+        if (_vm is { IsMiniMode: true } && _mini is not null && popover)
+        {
+            _mini.Show();   // no modo mini, a bandeja e o atalho mostram o mini
+            return;
+        }
         _popoverMode = popover;
 
         if (popover && !_main.IsVisible)
@@ -409,6 +431,35 @@ public partial class App : Application
 
     // ------------------------------------------------------------ saída
 
+    /// <summary>Liga ou desliga o mini Native: ele substitui a janela grande enquanto estiver ligado.</summary>
+    private void SyncMini()
+    {
+        if (_vm is null || _main is null) return;
+        if (_vm.IsMiniMode)
+        {
+            if (_mini is null)
+            {
+                _mini = new MiniWindow(_vm);
+                _mini.ExpandRequested += tab =>
+                {
+                    if (tab is { } t) _vm.SelectedTab = t;
+                    _vm.IsMiniMode = false;
+                };
+                _mini.HideRequested += () => _mini?.Hide();
+                _mini.Closed += (_, _) => _mini = null;
+            }
+            _main.Hide();
+            _mini.Show();
+        }
+        else
+        {
+            var mini = _mini;
+            _mini = null;
+            mini?.Close();
+            ShowMain(popover: false);
+        }
+    }
+
     /// <summary>Abre ou fecha o mini player conforme o view model.</summary>
     private void SyncPip()
     {
@@ -431,6 +482,7 @@ public partial class App : Application
     private void ExitApp()
     {
         _pip?.Close();
+        _mini?.Close();
         _exiting = true;
         _cts.Cancel();
         _vm?.StopMirror();

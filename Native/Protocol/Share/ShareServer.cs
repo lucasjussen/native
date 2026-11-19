@@ -284,6 +284,9 @@ public sealed class ShareServer : IDisposable
             return true;
         }
 
+        if (req.Method == "GET" && path == "/api/zip")
+            return await SendZipAsync(req, s, ct);
+
         if (req.Method == "GET" && path.StartsWith("/api/file/", StringComparison.Ordinal))
             return await SendFileAsync(req, s, path["/api/file/".Length..].Split('/')[0], ct);
 
@@ -362,6 +365,55 @@ public sealed class ShareServer : IDisposable
 
         if (!preview && end == size - 1 && download) MarkDelivered(item);
         return true;
+    }
+
+    /// <summary>"Baixar tudo": junta os arquivos pedidos num .zip só (um download no iPhone em vez de vários).</summary>
+    private async Task<bool> SendZipAsync(HttpRequest req, Stream s, CancellationToken ct)
+    {
+        var ids = (req.Param("ids") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var items = ids.Select(Find).Where(i => i is { Kind: ShareKind.File, Path: not null } && File.Exists(i.Path)).Cast<ShareItem>().ToList();
+        if (items.Count == 0)
+        {
+            await Json(s, 404, new { error = "nenhum arquivo disponível" }, req.KeepAlive, ct);
+            return true;
+        }
+
+        var temp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"native-{NewId()}.zip");
+        try
+        {
+            await using (var zipFile = new FileStream(temp, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 128 * 1024, useAsync: true))
+            using (var zip = new System.IO.Compression.ZipArchive(zipFile, System.IO.Compression.ZipArchiveMode.Create, leaveOpen: true))
+            {
+                var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var item in items)
+                {
+                    var name = item.Name;
+                    for (int n = 2; !used.Add(name); n++)
+                        name = $"{System.IO.Path.GetFileNameWithoutExtension(item.Name)} ({n}){System.IO.Path.GetExtension(item.Name)}";
+                    // fotos e vídeos já são comprimidos: guardar sem recomprimir é bem mais rápido
+                    var level = MimeTypes.For(item.Name).StartsWith("image/") || MimeTypes.For(item.Name).StartsWith("video/")
+                        ? System.IO.Compression.CompressionLevel.NoCompression : System.IO.Compression.CompressionLevel.Fastest;
+                    var entry = zip.CreateEntry(name, level);
+                    entry.LastWriteTime = File.GetLastWriteTime(item.Path!);
+                    await using var src = new FileStream(item.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 128 * 1024, useAsync: true);
+                    await using var dst = entry.Open();
+                    await src.CopyToAsync(dst, ct);
+                }
+            }
+
+            var zipName = $"Native · {items.Count} arquivos.zip";
+            await using var fs = new FileStream(temp, FileMode.Open, FileAccess.Read, FileShare.Read, 128 * 1024, useAsync: true);
+            await HttpResponse.WriteHeadAsync(s, 200, "application/octet-stream", fs.Length, req.KeepAlive,
+                new Dictionary<string, string> { ["Content-Disposition"] = HttpResponse.ContentDisposition(zipName, true) }, ct);
+            await fs.CopyToAsync(s, 128 * 1024, ct);
+            await s.FlushAsync(ct);
+            foreach (var item in items) MarkDelivered(item);
+            return true;
+        }
+        finally
+        {
+            try { File.Delete(temp); } catch { }
+        }
     }
 
     private async Task<bool> ReceiveFileAsync(HttpRequest req, Stream s, CancellationToken ct)
