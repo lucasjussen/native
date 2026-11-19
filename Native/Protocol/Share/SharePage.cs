@@ -107,7 +107,7 @@ textarea{width:100%;border:0;resize:none;background:transparent;color:var(--text
     <ol style="padding-left:20px;margin:6px 0 12px;line-height:1.5">
       <li>Toque em <b>Copiar endereço</b> abaixo.</li>
       <li>Abra o app <b>Atalhos</b> → <b>+</b>. Nomeie como <b>Enviar para o PC</b>.</li>
-      <li>Toque no <b>ⓘ</b> e ligue <b>Mostrar na Planilha de Compartilhamento</b>. Em tipos, deixe <b>Qualquer</b>.</li>
+      <li>No bloco <b>Receber</b> do topo, troque <b>Lugar Nenhum</b> por <b>Planilha de Compartilhamento</b>.</li>
       <li>Adicione <b>Repetir com Cada</b> e escolha <b>Entrada do Atalho</b>.</li>
       <li>Dentro dele, adicione <b>Obter Conteúdo do URL</b>: cole o endereço; em <b>Mostrar Mais</b>, Método <b>POST</b>; Cabeçalho <b>X-Filename</b> = <b>Item da Repetição › Nome</b>; Corpo da Solicitação <b>Arquivo</b> = <b>Item da Repetição</b>.</li>
       <li>Pronto. Em Fotos, Arquivos, Safari… toque em Compartilhar → <b>Enviar para o PC</b>.</li>

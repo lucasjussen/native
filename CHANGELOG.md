@@ -1,5 +1,9 @@
 # Histórico de versões
 
+## 1.3.3 — 19/11/2026
+
+- **Corrigido:** aparecia um contorno escuro ("fantasma") em volta do banner de notificação. O Windows 11 estava pondo moldura, borda e sombra na janela transparente inteira; agora o banner e o mini player desenham só o próprio cartão.
+
 ## 1.3.2 — 17/11/2026
 
 - **Carregando:** quando o iPhone está na tomada, a bateria fica verde com um raio, como no iPhone. Aviso quando chega a 100%. O iPhone não informa isso por Bluetooth, então o Native percebe pela porcentagem subindo (leva de 1 a 3 minutos para aparecer).

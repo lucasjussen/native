@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using Native.Services;
 using Native.ViewModels;
 
 namespace Native;
@@ -17,6 +18,7 @@ public partial class PipWindow : Window
         InitializeComponent();
         _vm = vm;
         DataContext = vm;
+        SourceInitialized += (_, _) => WindowEffects.SuppressFrame(this);
         Loaded += (_, _) => PlaceOnScreen();
         LocationChanged += (_, _) => { if (IsLoaded) SavePosition(); };
         Closing += OnClosing;

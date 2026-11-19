@@ -33,7 +33,11 @@ public partial class BannerWindow : Window
         InitializeComponent();
         _vm = vm;
         _autoHide.Tick += (_, _) => HideAnimated();
-        SourceInitialized += (_, _) => WindowEffects.MakeNonActivating(this);
+        SourceInitialized += (_, _) =>
+        {
+            WindowEffects.MakeNonActivating(this);
+            WindowEffects.SuppressFrame(this);
+        };
         MouseEnter += (_, _) => _autoHide.Stop();
         MouseLeave += (_, _) => { if (_current is { IsCall: false, IsReplying: false }) RestartTimer(); };
     }

@@ -30,12 +30,38 @@ internal static class WindowEffects
 
     public static void ApplyFrame(Window window, bool dark)
     {
+        // Janelas transparentes (banner, mini player) desenham o próprio cartão. Se o Windows 11
+        // arredondar e sombrear a janela inteira, aparece um "fantasma" em volta do cartão.
+        if (window.AllowsTransparency)
+        {
+            SuppressFrame(window);
+            return;
+        }
         var hwnd = new WindowInteropHelper(window).Handle;
         if (hwnd == IntPtr.Zero) return;
         int on = dark ? 1 : 0;
         DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref on, sizeof(int));
         int round = DWMWCP_ROUND;
         DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref round, sizeof(int));
+    }
+
+    private const int DWMWA_NCRENDERING_POLICY = 2;
+    private const int DWMNCRP_DISABLED = 1;
+    private const int DWMWCP_DONOTROUND = 1;
+    private const int DWMWA_BORDER_COLOR = 34;
+    private const int DWMWA_COLOR_NONE = unchecked((int)0xFFFFFFFE);
+
+    /// <summary>Tira moldura, borda, sombra e cantos que o Windows 11 põe em volta da janela.</summary>
+    public static void SuppressFrame(Window window)
+    {
+        var hwnd = new WindowInteropHelper(window).Handle;
+        if (hwnd == IntPtr.Zero) return;
+        int policy = DWMNCRP_DISABLED;
+        DwmSetWindowAttribute(hwnd, DWMWA_NCRENDERING_POLICY, ref policy, sizeof(int));
+        int corner = DWMWCP_DONOTROUND;
+        DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref corner, sizeof(int));
+        int border = DWMWA_COLOR_NONE;
+        DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ref border, sizeof(int));
     }
 
     /// <summary>Janela que aparece sem roubar o foco nem ocupar o Alt+Tab (para os banners).</summary>
