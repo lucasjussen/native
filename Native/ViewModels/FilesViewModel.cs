@@ -543,7 +543,7 @@ public sealed class FilesViewModel : ObservableObject, IDisposable
     {
         try
         {
-            using var s = typeof(FilesViewModel).Assembly.GetManifestResourceStream("Native.Assets.icone-256.png");
+            using var s = typeof(FilesViewModel).Assembly.GetManifestResourceStream("Native.Assets.apple-touch-icon.png");
             if (s is null) return null;
             using var ms = new MemoryStream();
             s.CopyTo(ms);

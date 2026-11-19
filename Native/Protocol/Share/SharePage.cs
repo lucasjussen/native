@@ -30,13 +30,13 @@ public static class SharePage
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--text);
   font:17px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-body{padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 96px)}
+body{padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 40px)}
 button{font:inherit;color:inherit}
 .hidden{display:none !important}
 
 /* topo */
 .top{display:flex;align-items:center;gap:14px;margin:6px 4px 22px}
-.logo{width:52px;height:52px;border-radius:12px;flex:none;box-shadow:0 0 0 .5px var(--sep)}
+.logo{width:52px;height:52px;border-radius:12px;flex:none}
 h1{font-size:30px;font-weight:700;letter-spacing:.2px;margin:0;line-height:1.1}
 .status{display:inline-flex;align-items:center;gap:7px;margin-top:4px;font-size:14px;color:var(--sec)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--ter);flex:none;transition:background .3s}
@@ -107,16 +107,22 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
 .chev{color:var(--ter);font-size:20px;transition:transform .2s}
 .open .chev{transform:rotate(90deg)}
 
-/* aviso flutuante */
-.toast{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 16px);display:flex;align-items:center;gap:12px;
-  padding:13px 16px;border-radius:16px;background:rgba(28,28,30,.94);color:#fff;font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.25);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);transform:translateY(140%);transition:transform .35s cubic-bezier(.2,.9,.3,1)}
-.toast.show{transform:none}
-.toast .ti{width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
-.toast .ti.ok{background:#30d158}
-.toast .ti.busy{border:2.5px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .8s linear infinite}
-.toast small{display:block;color:rgba(255,255,255,.65);font-size:13px;margin-top:1px}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* histórico */
+.day{font-size:13px;font-weight:600;color:var(--sec);text-transform:uppercase;letter-spacing:.3px;margin:16px 8px 6px}
+.day:first-child{margin-top:0}
+.hrow{min-height:58px;padding:8px 12px}
+.hrow + .hrow::before{left:64px}
+.hrow .thumb{width:38px;height:38px;border-radius:9px;font-size:9px}
+.hrow .name{font-size:15px}
+.dir{width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+.dir svg{width:14px;height:14px}
+.dir.down{background:rgba(52,199,89,.16);color:var(--green)}
+.dir.up{background:rgba(0,122,255,.14);color:var(--blue)}
+.dir.txt{background:var(--fill);color:var(--sec)}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%{background:rgba(52,199,89,.22)}100%{background:transparent}}
+.done-note{display:flex;align-items:center;gap:12px;padding:16px;font-size:15px;color:var(--sec)}
+.done-note .check{width:28px;height:28px;animation:none}
 .foot{color:var(--ter);font-size:12.5px;text-align:center;margin-top:30px;padding:0 24px;line-height:1.5}
 </style>
 </head>
@@ -141,10 +147,7 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
 <section>
   <div class="sec-head">
     <h2>Do computador <span class="badge hidden" id="badge"></span></h2>
-    <span>
-      <button class="link hidden" id="allBtn">Baixar tudo</button>
-      <button class="link hidden" id="clearBtn">Limpar baixados</button>
-    </span>
+    <button class="link hidden" id="allBtn">Baixar tudo</button>
   </div>
   <div class="card" id="inbox"></div>
 </section>
@@ -161,6 +164,12 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
     <textarea id="text" rows="1" placeholder="Texto ou link para o computador"></textarea>
     <button class="send" id="sendText" aria-label="Enviar texto" disabled><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></button>
   </div>
+</section>
+
+<section id="histSec" class="hidden">
+  <div class="sec-head"><h2>Histórico</h2><button class="link" id="histClear">Limpar</button></div>
+  <div id="hist"></div>
+  <p class="meta" style="margin:8px 8px 0;white-space:normal">O que você baixa fica em <b>Arquivos › Downloads</b>. Fotos abertas daqui: toque e segure → Salvar em Fotos.</p>
 </section>
 
 <section id="sc">
@@ -186,7 +195,6 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
 
 <p class="foot">Mantenha esta tela aberta para ver na hora o que o PC mandar. Funciona só no mesmo Wi-Fi do computador.</p>
 
-<div class="toast" id="toast" role="status" aria-live="polite"><span class="ti" id="toastIcon"></span><div><span id="toastText"></span><small id="toastSub"></small></div></div>
 
 <script>
 (() => {
@@ -194,13 +202,17 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
   const $ = id => document.getElementById(id);
   const q = (p, extra) => `${p}?k=${encodeURIComponent(key)}${extra || ''}`;
   const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17 19 7"/></svg>';
+  const ARROW_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m6 13 6 6 6-6"/></svg>';
+  const ARROW_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m6 11 6-6 6 6"/></svg>';
+  const COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
   let failures = 0, busy = false, shortcutUrl = '', active = 0, items = [], firstLoad = true;
   const rows = new Map();
 
-  // baixados ficam lembrados neste iPhone (além do que o PC sabe)
-  let doneIds;
-  try { doneIds = new Set(JSON.parse(localStorage.getItem('native.done') || '[]')); } catch (e) { doneIds = new Set(); }
-  const saveDone = () => { try { localStorage.setItem('native.done', JSON.stringify([...doneIds].slice(-400))); } catch (e) {} };
+  // ---------- memória deste iPhone: o que já foi baixado e o histórico
+  const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || '') ?? d; } catch (e) { return d; } };
+  const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const doneIds = new Set(load('native.done', []));
+  let history = load('native.history', []);
   const isDone = it => doneIds.has(it.id) || it.delivered;
 
   if (!navigator.standalone && !localStorage.getItem('hintClosed')) $('hint').classList.remove('hidden');
@@ -211,13 +223,14 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
     : n < 1073741824 ? (n / 1048576).toFixed(1).replace('.', ',') + ' MB' : (n / 1073741824).toFixed(2).replace('.', ',') + ' GB';
   const ago = ms => { const s = Math.max(0, (Date.now() - ms) / 1000);
     return s < 60 ? 'agora' : s < 3600 ? `há ${Math.floor(s / 60)} min` : s < 86400 ? `há ${Math.floor(s / 3600)} h` : new Date(ms).toLocaleDateString('pt-BR'); };
+  const clock = ms => new Date(ms).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   const ext = n => { const p = n.lastIndexOf('.'); return p > 0 ? n.slice(p + 1).toLowerCase() : ''; };
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const kind = (name, type) => {
-    const e = ext(name);
-    if (type.startsWith('image/')) return 'img';
-    if (type.startsWith('video/')) return 'vid';
-    if (type.startsWith('audio/')) return 'aud';
+    const e = ext(name); type = type || '';
+    if (type.startsWith('image/') || ['jpg', 'jpeg', 'png', 'heic', 'gif', 'webp'].includes(e)) return 'img';
+    if (type.startsWith('video/') || ['mp4', 'mov', 'm4v'].includes(e)) return 'vid';
+    if (type.startsWith('audio/') || ['mp3', 'm4a', 'wav'].includes(e)) return 'aud';
     if (e === 'pdf') return 'pdf';
     if (['doc', 'docx', 'pages', 'rtf', 'odt'].includes(e)) return 'doc';
     if (['xls', 'xlsx', 'csv', 'numbers', 'ods'].includes(e)) return 'xls';
@@ -226,6 +239,7 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
     if (['txt', 'md', 'json'].includes(e)) return 'txt';
     return 'gen';
   };
+  const tile = (k, name, cls) => `<div class="thumb ${k === 'img' ? 'vid' : k} ${cls || ''}">${esc(k === 'lnk' ? 'link' : k === 'txt' && !ext(name) ? 'txt' : (ext(name) || '?').slice(0, 4))}</div>`;
   function copy(text) {
     const t = document.createElement('textarea');
     t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
@@ -234,18 +248,6 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
     t.remove(); return ok;
   }
   async function post(path) { try { await fetch(q(path), { method: 'POST' }); } catch (e) {} }
-  function markDone(it) { doneIds.add(it.id); saveDone(); post('/api/ack/' + it.id); }
-
-  // ---------- aviso flutuante
-  let toastTimer;
-  function toast(text, sub, state) {
-    clearTimeout(toastTimer);
-    $('toastText').textContent = text; $('toastSub').textContent = sub || '';
-    const ic = $('toastIcon'); ic.className = 'ti ' + (state || ''); ic.innerHTML = state === 'ok' ? CHECK.replace('stroke-width="3"', 'stroke-width="3.4"') : '';
-    $('toast').classList.add('show');
-    if (state !== 'busy') toastTimer = setTimeout(() => $('toast').classList.remove('show'), 3200);
-  }
-
   function ringHtml(p) {
     const c = 2 * Math.PI * 14, off = c * (1 - p);
     return `<div class="ring"><svg viewBox="0 0 34 34"><circle class="bg" cx="17" cy="17" r="14" fill="none" stroke-width="3.2"/>` +
@@ -253,89 +255,117 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
       `<span>${Math.round(p * 100)}%</span></div>`;
   }
 
-  // ---------- lista "Do computador"
+  // ---------- histórico
+  function addHistory(entry) {
+    history.unshift({ ...entry, at: Date.now() });
+    history = history.slice(0, 80);
+    store('native.history', history);
+    renderHistory(true);
+  }
+  const dayLabel = ms => {
+    const d = new Date(ms), t = new Date(); t.setHours(0, 0, 0, 0);
+    const diff = Math.round((t - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+    return diff === 0 ? 'Hoje' : diff === 1 ? 'Ontem' : d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+  };
+  function renderHistory(flashFirst) {
+    $('histSec').classList.toggle('hidden', history.length === 0);
+    const box = $('hist');
+    let html = '', day = '', open = false;
+    history.forEach((h, i) => {
+      const label = dayLabel(h.at);
+      if (label !== day) {
+        if (open) html += '</div>';
+        html += `<div class="day">${label}</div><div class="card">`;
+        day = label; open = true;
+      }
+      const verb = h.dir === 'up' ? 'enviado para o PC' : h.dir === 'text' ? 'copiado' : h.dir === 'zip' ? 'baixado no .zip' : h.dir === 'open' ? 'aberto para salvar' : 'baixado';
+      const icon = h.dir === 'up' ? `<span class="dir up">${ARROW_UP}</span>` : h.dir === 'text' ? `<span class="dir txt">${COPY}</span>` : `<span class="dir down">${ARROW_DOWN}</span>`;
+      const size = h.size ? `${fmtSize(h.size)} · ` : '';
+      html += `<div class="row hrow${flashFirst && Date.now() - h.at < 1500 ? ' flash' : ''}">${tile(h.k || kind(h.name), h.name)}` +
+        `<div class="info"><div class="name">${esc(h.name)}</div><div class="meta">${size}${clock(h.at)} · ${verb}</div></div>${icon}</div>`;
+    });
+    if (open) html += '</div>';
+    box.innerHTML = html;
+  }
+  $('histClear').onclick = () => { history = []; store('native.history', history); renderHistory(); };
+
+  // ---------- lista "Do computador": só o que ainda falta
   function rowFor(it) {
     const row = document.createElement('div');
     row.className = 'row' + (firstLoad ? '' : ' new');
     const k = it.kind === 'text' ? (/^https?:\/\/\S+$/i.test(it.text.trim()) ? 'lnk' : 'txt') : kind(it.name, it.type);
     const thumb = k === 'img' && !/heic|heif/.test(it.type)
-      ? `<img class="thumb" loading="lazy" src="${q('/api/file/' + it.id, '&t=1')}" alt="">`
-      : `<div class="thumb ${k}">${esc(k === 'lnk' ? 'link' : k === 'txt' && it.kind === 'text' ? 'txt' : (ext(it.name) || '?').slice(0, 4))}</div>`;
+      ? `<img class="thumb" loading="lazy" src="${q('/api/file/' + it.id, '&t=1')}" alt="">` : tile(k, it.kind === 'text' ? '' : it.name);
     const title = it.kind === 'text' ? `<div class="txt">${esc(it.text)}</div>` : `<div class="name">${esc(it.name)}</div>`;
     row.innerHTML = `${thumb}<div class="info">${title}<div class="meta"></div></div><div class="act"></div>`;
     row._k = k;
+    paintIdle(row, it);
     return row;
   }
 
-  function paint(row, it, state, progress) {
-    row.dataset.state = state;
-    row.classList.toggle('done', state === 'done');
+  function paintIdle(row, it) {
     const meta = row.querySelector('.meta'), act = row.querySelector('.act');
-    const base = it.kind === 'text' ? ago(it.created) : `${fmtSize(it.size)} · ${ago(it.created)}`;
-    if (state === 'busy') { meta.innerHTML = `${base} · baixando…`; act.innerHTML = ringHtml(progress || 0); return; }
-    if (state === 'done') {
-      const where = it.kind === 'text' ? 'copiado' : (row._k === 'img' || row._k === 'vid') ? 'salvo' : 'baixado';
-      meta.innerHTML = `${base} · <span class="ok">${where}</span>`;
-      act.innerHTML = `<button class="check" aria-label="Fazer de novo">${CHECK}</button>`;
-      act.firstChild.onclick = () => run(it, row);
-      return;
-    }
-    meta.textContent = base;
-    const label = it.kind === 'text' ? (row._k === 'lnk' ? 'Abrir' : 'Copiar') : (row._k === 'img' || row._k === 'vid') ? 'Salvar' : 'Baixar';
-    if (row._k === 'lnk') act.innerHTML = `<a class="pill" href="${esc(it.text.trim())}" target="_blank" rel="noopener">Abrir</a>`;
-    else if (row._k === 'img' || row._k === 'vid') act.innerHTML = `<a class="pill" href="${q('/api/file/' + it.id)}" target="_blank" rel="noopener">Salvar</a>`;
-    else act.innerHTML = `<button class="pill">${label}</button>`;
+    meta.textContent = it.kind === 'text' ? ago(it.created) : `${fmtSize(it.size)} · ${ago(it.created)}`;
+    const k = row._k;
+    if (k === 'lnk') act.innerHTML = `<a class="pill" href="${esc(it.text.trim())}" target="_blank" rel="noopener">Abrir</a>`;
+    else if (k === 'img' || k === 'vid') act.innerHTML = `<a class="pill" href="${q('/api/file/' + it.id)}" target="_blank" rel="noopener">Abrir</a>`;
+    else act.innerHTML = `<button class="pill">${it.kind === 'text' ? 'Copiar' : 'Baixar'}</button>`;
     act.firstChild.addEventListener('click', ev => {
       if (act.firstChild.tagName === 'BUTTON') ev.preventDefault();
-      run(it, row, ev);
+      run(it, row);
     });
+  }
+
+  // terminou: some da lista com um ✓ e vai para o histórico
+  function finish(it, row, entry) {
+    doneIds.add(it.id); store('native.done', [...doneIds].slice(-400));
+    post('/api/ack/' + it.id);
+    addHistory(entry);
+    row.querySelector('.act').innerHTML = `<span class="check">${CHECK}</span>`;
+    row.querySelector('.meta').innerHTML = `<span class="ok">${entry.dir === 'text' ? 'Copiado' : entry.dir === 'open' ? 'Aberto' : 'Baixado'}</span>`;
+    setTimeout(() => {
+      row.style.transition = 'opacity .3s, transform .3s'; row.style.opacity = '0'; row.style.transform = 'translateX(30px)';
+      setTimeout(() => { row.remove(); rows.delete(it.id); render(items); }, 300);
+    }, 900);
   }
 
   function run(it, row) {
     if (it.kind === 'text') {
-      if (row._k !== 'lnk' && !copy(it.text)) { toast('Não deu para copiar', 'Toque e segure o texto para copiar.'); return; }
-      markDone(it); paint(row, it, 'done');
-      toast(row._k === 'lnk' ? 'Link aberto' : 'Copiado', '', 'ok');
+      if (row._k !== 'lnk' && !copy(it.text)) { row.querySelector('.meta').innerHTML = '<span class="err">toque e segure o texto para copiar</span>'; return; }
+      finish(it, row, { dir: row._k === 'lnk' ? 'open' : 'text', name: it.text.trim().slice(0, 80), k: row._k });
       return;
     }
-    if (row._k === 'img' || row._k === 'vid') {
-      // fotos e vídeos abrem para "Salvar em Fotos"
-      markDone(it); paint(row, it, 'done');
-      toast(row._k === 'img' ? 'Toque e segure a foto' : 'Toque em Compartilhar', row._k === 'img' ? 'e escolha Salvar em Fotos.' : 'e escolha Salvar Vídeo.', 'ok');
-      return;
-    }
+    if (row._k === 'img' || row._k === 'vid') { finish(it, row, { dir: 'open', name: it.name, size: it.size, k: row._k }); return; }
     download(it, row);
   }
 
   function render(list) {
     items = list;
     const box = $('inbox');
-    const ids = new Set(list.map(i => i.id));
-    for (const [id, row] of rows) if (!ids.has(id)) { row.remove(); rows.delete(id); }
-    if (!list.length) {
-      box.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Arraste arquivos para a janela do Native no PC e eles aparecem aqui.</div>`;
+    const pending = list.filter(it => !isDone(it));
+    const ids = new Set(pending.map(i => i.id));
+    for (const [id, row] of rows) if (!ids.has(id) && row.dataset.state !== 'busy' && !row.querySelector('.check')) { row.remove(); rows.delete(id); }
+    if (!pending.length) {
+      if (!box.querySelector('.row')) {
+        box.innerHTML = list.length
+          ? `<div class="done-note"><span class="check">${CHECK}</span><span>Tudo baixado. O que chegou está no histórico abaixo.</span></div>`
+          : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Arraste arquivos para a janela do Native no PC e eles aparecem aqui.</div>`;
+      }
     } else {
-      const empty = box.querySelector('.empty'); if (empty) empty.remove();
-      list.forEach((it, i) => {
+      box.querySelectorAll('.empty, .done-note').forEach(e => e.remove());
+      pending.forEach((it, i) => {
         let row = rows.get(it.id);
-        if (!row) { row = rowFor(it); rows.set(it.id, row); paint(row, it, isDone(it) ? 'done' : 'idle'); }
-        else if (row.dataset.state !== 'busy') {
-          // só redesenha quando muda (baixado em outro lugar, por exemplo), para não sumir com um toque no meio
-          const want = isDone(it) ? 'done' : 'idle';
-          if (row.dataset.state !== want) paint(row, it, want);
-        }
+        if (!row) { row = rowFor(it); rows.set(it.id, row); }
         if (box.children[i] !== row) box.insertBefore(row, box.children[i] || null);
       });
     }
-    const pending = list.filter(it => it.kind === 'file' && !isDone(it));
-    const doneCount = list.filter(isDone).length;
+    const files = pending.filter(it => it.kind === 'file');
     $('badge').textContent = pending.length; $('badge').classList.toggle('hidden', pending.length === 0);
-    $('allBtn').classList.toggle('hidden', pending.length < 2);
-    $('clearBtn').classList.toggle('hidden', pending.length >= 2 || doneCount === 0);
+    $('allBtn').classList.toggle('hidden', files.length < 2 || active > 0);
     firstLoad = false;
   }
 
-  // ---------- baixar (um arquivo)
+  // ---------- baixar
   function fetchBlob(url, onProgress) {
     return new Promise((resolve, reject) => {
       const x = new XMLHttpRequest();
@@ -355,47 +385,43 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
   }
   async function download(it, row) {
     if (row.dataset.state === 'busy') return;
-    active++;
-    paint(row, it, 'busy', 0);
-    toast(`Baixando ${it.name}`, '', 'busy');
+    active++; row.dataset.state = 'busy';
+    const meta = row.querySelector('.meta'), act = row.querySelector('.act');
+    meta.textContent = `${fmtSize(it.size)} · baixando…`; act.innerHTML = ringHtml(0);
     try {
-      const blob = await fetchBlob(q('/api/file/' + it.id, '&dl=1'), p => { row.querySelector('.act').innerHTML = ringHtml(p); });
+      const blob = await fetchBlob(q('/api/file/' + it.id, '&dl=1'), p => { act.innerHTML = ringHtml(p); });
       save(blob, it.name);
-      markDone(it); paint(row, it, 'done');
-      const left = items.filter(i => i.kind === 'file' && !isDone(i)).length;
-      toast('Baixado', left ? `Está em Arquivos › Downloads. Faltam ${left}.` : 'Está em Arquivos › Downloads.', 'ok');
+      row.dataset.state = '';
+      finish(it, row, { dir: 'down', name: it.name, size: it.size, k: row._k });
     } catch (e) {
-      paint(row, it, 'idle');
-      row.querySelector('.meta').innerHTML += ' · <span class="err">não deu para baixar</span>';
-      toast('Não deu para baixar', 'Confira se o PC está no mesmo Wi-Fi.', '');
+      row.dataset.state = '';
+      paintIdle(row, it);
+      meta.innerHTML += ' · <span class="err">não deu, toque de novo</span>';
     } finally { active--; }
   }
 
-  // ---------- baixar tudo: um .zip só (o iPhone não deixa um site baixar vários arquivos seguidos)
+  // baixar tudo: um .zip só (o iOS não deixa um site baixar vários arquivos seguidos)
   $('allBtn').onclick = async () => {
     const pending = items.filter(it => it.kind === 'file' && !isDone(it));
-    if (!pending.length) return;
-    active++;
-    pending.forEach(it => { const r = rows.get(it.id); if (r) paint(r, it, 'busy', 0); });
-    toast(`Juntando ${pending.length} arquivos…`, '', 'busy');
+    if (pending.length < 2) return;
+    active++; $('allBtn').classList.add('hidden');
+    const prs = pending.map(it => rows.get(it.id)).filter(Boolean);
+    prs.forEach(r => { r.dataset.state = 'busy'; r.querySelector('.act').innerHTML = ringHtml(0); r.querySelector('.meta').textContent = 'no .zip · baixando…'; });
     try {
-      const blob = await fetchBlob(q('/api/zip', '&ids=' + pending.map(i => i.id).join(',')), p => {
-        pending.forEach(it => { const r = rows.get(it.id); if (r) r.querySelector('.act').innerHTML = ringHtml(p); });
-        $('toastText').textContent = `Baixando ${pending.length} arquivos · ${Math.round(p * 100)}%`;
-      });
-      save(blob, `Native · ${pending.length} arquivos.zip`);
-      pending.forEach(it => { doneIds.add(it.id); const r = rows.get(it.id); if (r) paint(r, it, 'done'); });
-      saveDone();
-      toast(`${pending.length} arquivos baixados`, 'Num .zip em Arquivos › Downloads. Toque nele para abrir.', 'ok');
+      const name = `Native · ${pending.length} arquivos.zip`;
+      const blob = await fetchBlob(q('/api/zip', '&ids=' + pending.map(i => i.id).join(',')), p => prs.forEach(r => r.querySelector('.act').innerHTML = ringHtml(p)));
+      save(blob, name);
+      pending.forEach(it => { doneIds.add(it.id); post('/api/ack/' + it.id); });
+      store('native.done', [...doneIds].slice(-400));
+      // no histórico, cada documento com o nome dele (e o .zip onde ficou)
+      pending.slice().reverse().forEach(it => history.unshift({ dir: 'zip', name: it.name, size: it.size, k: kind(it.name, it.type), at: Date.now() }));
+      history = history.slice(0, 80); store('native.history', history); renderHistory(true);
+      prs.forEach(r => { r.dataset.state = ''; r.querySelector('.act').innerHTML = `<span class="check">${CHECK}</span>`; r.querySelector('.meta').innerHTML = '<span class="ok">Baixado no .zip</span>'; });
+      setTimeout(() => { prs.forEach(r => r.remove()); pending.forEach(it => rows.delete(it.id)); render(items); }, 1100);
     } catch (e) {
-      pending.forEach(it => { const r = rows.get(it.id); if (r) paint(r, it, 'idle'); });
-      toast('Não deu para baixar', 'Confira se o PC está no mesmo Wi-Fi.', '');
+      prs.forEach(r => { r.dataset.state = ''; });
+      pending.forEach(it => { const r = rows.get(it.id); if (r) { paintIdle(r, it); r.querySelector('.meta').innerHTML += ' · <span class="err">não deu</span>'; } });
     } finally { active--; render(items); }
-  };
-
-  $('clearBtn').onclick = () => {
-    items.filter(isDone).forEach(it => { post('/api/remove/' + it.id); const r = rows.get(it.id); if (r) { r.remove(); rows.delete(it.id); } });
-    render(items.filter(it => !isDone(it)));
   };
 
   // ---------- estado
@@ -428,20 +454,18 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
     const jobs = files.map(f => {
       const row = document.createElement('div');
       row.className = 'row new';
-      const k = kind(f.name, f.type || '');
-      row.innerHTML = `<div class="thumb ${k === 'img' ? 'gen' : k}">${esc((ext(f.name) || '?').slice(0, 4))}</div><div class="info"><div class="name">${esc(f.name)}</div>
-        <div class="meta">${fmtSize(f.size)} · na fila</div></div><div class="act"></div>`;
+      const k = kind(f.name, f.type);
+      row.innerHTML = `${tile(k, f.name)}<div class="info"><div class="name">${esc(f.name)}</div><div class="meta">${fmtSize(f.size)} · na fila</div></div><div class="act"></div>`;
       if (k === 'img') { const img = document.createElement('img'); img.className = 'thumb'; img.alt = ''; img.src = URL.createObjectURL(f); row.firstChild.replaceWith(img); }
-      list.prepend(row);
-      return { f, row };
+      list.append(row);
+      return { f, row, k };
     });
-    let ok = 0;
-    for (const [i, j] of jobs.entries()) {
-      toast(jobs.length > 1 ? `Enviando ${i + 1} de ${jobs.length}` : `Enviando ${j.f.name}`, '', 'busy');
-      if (await upload(j.f, j.row)) ok++;
+    for (const j of jobs) {
+      if (await upload(j.f, j.row)) {
+        addHistory({ dir: 'up', name: j.f.name, size: j.f.size, k: j.k });
+        setTimeout(() => { j.row.remove(); if (!list.children.length) list.classList.add('hidden'); }, 1200);
+      }
     }
-    toast(ok === jobs.length ? (ok > 1 ? `${ok} arquivos no computador` : 'No computador') : `${ok} de ${jobs.length} enviados`,
-          ok ? 'Na pasta Downloads › Native.' : 'Confira se o PC está no mesmo Wi-Fi.', ok ? 'ok' : '');
   };
 
   function upload(file, row) {
@@ -453,7 +477,7 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
       x.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
       x.upload.onprogress = ev => { if (ev.lengthComputable) act.innerHTML = ringHtml(ev.loaded / ev.total); };
       x.onload = () => {
-        if (x.status === 200) { meta.innerHTML = `${fmtSize(file.size)} · <span class="ok">no computador</span>`; act.innerHTML = `<span class="check">${CHECK}</span>`; row.classList.add('done'); done(true); }
+        if (x.status === 200) { meta.innerHTML = '<span class="ok">No computador</span>'; act.innerHTML = `<span class="check">${CHECK}</span>`; done(true); }
         else { let m = 'falhou'; try { m = JSON.parse(x.responseText).error || m; } catch (e) {} meta.innerHTML = `<span class="err">${esc(m)}</span>`; act.innerHTML = ''; done(false); }
       };
       x.onerror = () => { meta.innerHTML = '<span class="err">sem conexão com o computador</span>'; act.innerHTML = ''; done(false); };
@@ -469,9 +493,8 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
     sendBtn.disabled = true;
     try {
       const r = await fetch(q('/api/text'), { method: 'POST', body: t, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
-      if (r.ok) { ta.value = ''; ta.style.height = 'auto'; toast('Enviado', 'Já está no Ctrl + V do computador.', 'ok'); }
-      else toast('Não deu para enviar', '', '');
-    } catch (e) { toast('Não deu para enviar', 'Confira se o PC está no mesmo Wi-Fi.', ''); sendBtn.disabled = false; }
+      if (r.ok) { ta.value = ''; ta.style.height = 'auto'; addHistory({ dir: 'up', name: t.slice(0, 80), k: /^https?:\/\//i.test(t) ? 'lnk' : 'txt' }); }
+    } catch (e) { sendBtn.disabled = false; }
   };
 
   // ---------- atalho
@@ -483,6 +506,7 @@ textarea{flex:1;border:0;resize:none;background:transparent;color:var(--text);fo
     setTimeout(() => $('scCopy').textContent = 'Copiar endereço', 1800);
   };
 
+  renderHistory();
   document.addEventListener('visibilitychange', refresh);
   setInterval(refresh, 2000);
   refresh();

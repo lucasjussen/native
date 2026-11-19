@@ -1,5 +1,14 @@
 # Histórico de versões
 
+## 1.4.1
+
+- **Página do iPhone:** o aviso "Baixado" que ficava preso e cortado no fim da tela (no app da Tela de Início) foi removido.
+- **Histórico:** tudo o que você baixa, envia ou copia aparece em "Histórico", com o nome do documento, tamanho, hora e direção (↓ baixado, ↑ enviado). Agrupado por Hoje/Ontem/data, guardado no próprio iPhone, com botão "Limpar".
+- "Do computador" mostra só o que ainda falta baixar; o item baixado sai da lista com um ✓ e entra no histórico. Quando não sobra nada: "Tudo baixado".
+- "Baixar tudo" (.zip) registra cada documento pelo nome no histórico.
+- Erros aparecem na própria linha do arquivo.
+- **Ícone:** sem o contorno branco e sem o brilho — só o celular no fundo preto. O ícone da Tela de Início do iPhone agora é um quadrado cheio (o iOS arredonda).
+
 ## 1.4.0 — 19/11/2026
 
 - **Mini Native:** botão novo na barra de título (e na bandeja). Troca a janela grande por uma janelinha fixa por cima de tudo, com o iPhone (conexão, bateria, carregando), o que está tocando com controles e as 4 últimas notificações. Clicar numa notificação abre o Native completo; arrastar arquivos para o mini manda para o iPhone. Ele lembra onde ficou e abre assim da próxima vez.
