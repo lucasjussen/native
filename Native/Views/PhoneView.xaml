@@ -158,7 +158,7 @@
                 </ItemsControl>
             </ScrollViewer>
 
-            <Border Grid.Row="1" VerticalAlignment="Top" Margin="16,8" Padding="18,16" CornerRadius="14" Background="{DynamicResource CardBg}"
+            <Border Grid.Row="1" VerticalAlignment="Top" Margin="16,8" Padding="18,16" CornerRadius="14" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}"
                     Visibility="{Binding HasNoContacts, Converter={StaticResource Vis}}">
                 <StackPanel>
                     <TextBlock Text="Traga a agenda do iPhone" FontWeight="SemiBold" FontSize="14"/>

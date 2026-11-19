@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:v="clr-namespace:Native.Views"
         Title="Native"
-        Width="410" Height="740" MinWidth="370" MinHeight="540"
+        Width="410" Height="740" MinWidth="370" MinHeight="540" MaxWidth="560"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowBg}"
         Foreground="{DynamicResource LabelPrimary}"
@@ -80,13 +80,12 @@
             <!-- à direita: botões do Windows -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
                 <Button Style="{StaticResource CaptionButton}" Content="&#xE921;" Click="Minimize_Click" ToolTip="Minimizar"/>
-                <Button x:Name="MaxButton" Style="{StaticResource CaptionButton}" Content="&#xE922;" Click="Maximize_Click" ToolTip="Maximizar"/>
                 <Button Style="{StaticResource CaptionCloseButton}" Content="&#xE8BB;" Click="Close_Click" ToolTip="Fechar (continua rodando na bandeja)"/>
             </StackPanel>
         </Grid>
 
         <!-- ======================== cartão do iPhone ======================== -->
-        <Border Grid.Row="1" Margin="16,2,16,10" Padding="16,14" CornerRadius="16" Background="{DynamicResource CardBg}">
+        <Border Grid.Row="1" Margin="16,2,16,10" Padding="16,14" CornerRadius="16" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -172,13 +171,13 @@
         </Border>
 
         <!-- ======================== tocando agora ======================== -->
-        <Border Grid.Row="2" Margin="16,0,16,10" Padding="14,12,14,8" CornerRadius="16" Background="{DynamicResource CardBg}"
+        <Border Grid.Row="2" Margin="16,0,16,10" Padding="14,12,14,8" CornerRadius="16" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}"
                 Visibility="{Binding HasNowPlaying, Converter={StaticResource Vis}}">
             <v:NowPlayingView/>
         </Border>
 
         <!-- ======================== abas ======================== -->
-        <Border Grid.Row="3" Margin="16,0,16,8" Padding="2" CornerRadius="9" Background="{DynamicResource SegmentTrack}"
+        <Border Grid.Row="3" Margin="16,0,16,8" Padding="2" CornerRadius="9" Background="{DynamicResource SegmentTrack}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}"
                 Visibility="{Binding ShowSetup, Converter={StaticResource NotVis}}">
             <UniformGrid Columns="4">
                 <RadioButton Style="{StaticResource Segment}" Content="Notificações" IsChecked="{Binding IsNotificationsTab}" ToolTip="Ctrl+1"/>

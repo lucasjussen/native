@@ -11,7 +11,7 @@
             <ItemsControl ItemsSource="{Binding Steps}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border x:Name="Card" Background="{DynamicResource CardBg}" CornerRadius="14" Padding="14,12" Margin="0,0,0,10"
+                        <Border x:Name="Card" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}" CornerRadius="14" Padding="14,12" Margin="0,0,0,10"
                                 Opacity="0.55">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -52,7 +52,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <Border Background="{DynamicResource CardBg}" CornerRadius="14" Padding="14,12" Margin="0,6,0,0">
+            <Border Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}" CornerRadius="14" Padding="14,12" Margin="0,6,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

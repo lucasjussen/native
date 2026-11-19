@@ -19,10 +19,11 @@
     <SolidColorBrush x:Key="SheetBg" Color="#F5F8F9FC"/>
     <SolidColorBrush x:Key="BannerBg" Color="#F6F7FA"/>
     <SolidColorBrush x:Key="BannerShadow" Color="#000000"/>
-    <LinearGradientBrush x:Key="BannerBorder" StartPoint="0,0" EndPoint="0,1">
+    <LinearGradientBrush x:Key="BannerBorder" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#FFFFFFFF" Offset="0"/>
-        <GradientStop Color="#33FFFFFF" Offset="0.5"/>
-        <GradientStop Color="#18000000" Offset="1"/>
+        <GradientStop Color="#66FFFFFF" Offset="0.3"/>
+        <GradientStop Color="#1F000000" Offset="0.7"/>
+        <GradientStop Color="#CCFFFFFF" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassSheen" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#66FFFFFF" Offset="0"/>
@@ -31,4 +32,17 @@
     </LinearGradientBrush>
     <!-- banners: quase sólidos, para ler de relance por cima de qualquer coisa -->
     <SolidColorBrush x:Key="ToastBg" Color="#F5F6F7FA"/>
+
+    <!-- ===== Liquid Glass (claro), como no iOS 26 ===== -->
+    <LinearGradientBrush x:Key="CardRim" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#FFFFFFFF" Offset="0"/>
+        <GradientStop Color="#80FFFFFF" Offset="0.35"/>
+        <GradientStop Color="#14000000" Offset="0.7"/>
+        <GradientStop Color="#B3FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <Thickness x:Key="CardRimThickness">1</Thickness>
+    <LinearGradientBrush x:Key="SegmentSelected" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FFFFFFFF" Offset="0"/>
+        <GradientStop Color="#D9FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
 </ResourceDictionary>

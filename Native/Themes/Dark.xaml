@@ -58,4 +58,7 @@
     <SolidColorBrush x:Key="GlassSheen" Color="Transparent"/>
     <SolidColorBrush x:Key="BannerShadow" Color="#2C2C2E"/>
     <SolidColorBrush x:Key="ToastBg" Color="#2C2C2E"/>
+    <!-- borda de luz dos cartões: só existe no Liquid Glass -->
+    <SolidColorBrush x:Key="CardRim" Color="Transparent"/>
+    <Thickness x:Key="CardRimThickness">0</Thickness>
 </ResourceDictionary>

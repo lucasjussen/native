@@ -16,7 +16,6 @@
     <SolidColorBrush x:Key="CardLayer1" Color="#10FFFFFF"/>
     <SolidColorBrush x:Key="CardLayer2" Color="#09FFFFFF"/>
     <SolidColorBrush x:Key="SegmentTrack" Color="#14FFFFFF"/>
-    <SolidColorBrush x:Key="SegmentSelected" Color="#40FFFFFF"/>
     <SolidColorBrush x:Key="SegmentHover" Color="#1FFFFFFF"/>
     <SolidColorBrush x:Key="Separator" Color="#1CFFFFFF"/>
     <SolidColorBrush x:Key="FieldBg" Color="#1AFFFFFF"/>
@@ -26,10 +25,11 @@
     <SolidColorBrush x:Key="BannerBg" Color="#1F2129"/>
     <SolidColorBrush x:Key="BannerShadow" Color="#000000"/>
     <!-- borda de luz: forte em cima, some embaixo -->
-    <LinearGradientBrush x:Key="BannerBorder" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#5CFFFFFF" Offset="0"/>
-        <GradientStop Color="#14FFFFFF" Offset="0.45"/>
-        <GradientStop Color="#22FFFFFF" Offset="1"/>
+    <LinearGradientBrush x:Key="BannerBorder" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#80FFFFFF" Offset="0"/>
+        <GradientStop Color="#1AFFFFFF" Offset="0.3"/>
+        <GradientStop Color="#0DFFFFFF" Offset="0.65"/>
+        <GradientStop Color="#4DFFFFFF" Offset="1"/>
     </LinearGradientBrush>
     <!-- reflexo no topo do vidro -->
     <LinearGradientBrush x:Key="GlassSheen" StartPoint="0,0" EndPoint="0,1">
@@ -39,4 +39,19 @@
     </LinearGradientBrush>
     <!-- banners: quase sólidos, para ler de relance por cima de qualquer coisa -->
     <SolidColorBrush x:Key="ToastBg" Color="#F21F2129"/>
+
+    <!-- ===== Liquid Glass como no iOS 26: luz batendo na quina de cima à esquerda e reflexo na de baixo
+         à direita; o meio da borda quase some. Vale para a janela, o Mini e todos os cartões. ===== -->
+    <LinearGradientBrush x:Key="CardRim" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#66FFFFFF" Offset="0"/>
+        <GradientStop Color="#14FFFFFF" Offset="0.35"/>
+        <GradientStop Color="#08FFFFFF" Offset="0.6"/>
+        <GradientStop Color="#3DFFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <Thickness x:Key="CardRimThickness">1</Thickness>
+    <!-- aba/segmento selecionado: uma "gota" de vidro mais clara -->
+    <LinearGradientBrush x:Key="SegmentSelected" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#4DFFFFFF" Offset="0"/>
+        <GradientStop Color="#26FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
 </ResourceDictionary>

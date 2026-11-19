@@ -523,8 +523,13 @@ public sealed class MainViewModel : ObservableObject
         {
             value = Math.Round(Math.Clamp(value, 0.25, 1), 2);
             if (Math.Abs(_settings.GlassOpacity - value) < 0.001) return;
-            _settings.GlassOpacity = value; _settings.Save();
+            _settings.GlassOpacity = value;
             ThemeManager.SetGlassOpacity(value);
+            // grava só quando o controle para de mexer (gravar a cada pixel arrastado engasgava)
+            _glassSave ??= new System.Windows.Threading.DispatcherTimer(TimeSpan.FromMilliseconds(400),
+                System.Windows.Threading.DispatcherPriority.Background, (_, _) => { _glassSave!.Stop(); _settings.Save(); },
+                Application.Current.Dispatcher);
+            _glassSave.Stop(); _glassSave.Start();
             Raise(); Raise(nameof(GlassOpacityText));
         }
     }
@@ -538,12 +543,26 @@ public sealed class MainViewModel : ObservableObject
 
     public bool BlurSupported => WindowEffects.BlurSupported;
 
+    public bool IsEngine1 { get => _settings.GlassEngine == 1; set { if (value) SetEngine(1); } }
+    public bool IsEngine2 { get => _settings.GlassEngine == 2; set { if (value) SetEngine(2); } }
+    public bool IsEngine3 { get => _settings.GlassEngine == 3; set { if (value) SetEngine(3); } }
+
+    private void SetEngine(int engine)
+    {
+        _settings.GlassEngine = engine; _settings.Save();
+        WindowEffects.BlurEngine = engine;
+        ThemeManager.SetGlassBlur(GlassBlur);   // reaplica nas janelas
+        Raise(nameof(IsEngine1)); Raise(nameof(IsEngine2)); Raise(nameof(IsEngine3));
+    }
+
     /// <summary>O controle desliza em "transparência" (o contrário da opacidade).</summary>
     public double GlassTransparency
     {
         get => 1 - GlassOpacity;
         set { GlassOpacity = 1 - value; Raise(); }
     }
+
+    private System.Windows.Threading.DispatcherTimer? _glassSave;
 
     public string GlassOpacityText => $"{Math.Round((1 - GlassOpacity) * 100)}% transparente";
 

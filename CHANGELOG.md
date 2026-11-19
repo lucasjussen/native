@@ -1,5 +1,13 @@
 # Histórico de versões
 
+## 1.6.0
+
+- **Liquid Glass no estilo do iOS 26:** borda de luz em todos os cartões (forte na quina de cima à esquerda, reflexo na de baixo à direita), aba selecionada como uma gota de vidro, cartões e janela com o mesmo brilho.
+- **Transparência fluida:** arrastar o controle de 0 a 75% agora só muda a opacidade dos fundos, sem recarregar o tema nem gravar o arquivo de ajustes a cada movimento (era isso que engasgava).
+- **Sem tela cheia:** o Native é um painel do tamanho de um celular. Saiu o botão de maximizar, e duplo clique na barra, Win + ↑ ou arrastar para o topo não maximizam mais (largura máxima de 560).
+- **Tipo de desfoque** (Acrílico, Desfoque, Sistema): o "Desfoque" do 1.5.2 deixava o fundo preto em alguns Windows 11; o padrão agora é Acrílico, e dá para trocar se o fundo ficar preto.
+- Ajustes: "Transparência" e "Vidro fosco" não ficam mais encavalados.
+
 ## 1.5.2
 
 - **Liquid Glass de verdade (vidro fosco):** no Windows 11, a janela grande, o Mini e o mini player desfocam o que está atrás, com tom, reflexo no topo, borda de luz e cartões de vidro em degradê. Com o desfoque, cantos, borda fina e sombra passam a ser os do próprio Windows.

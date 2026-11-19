@@ -10,7 +10,6 @@ namespace Native;
 public partial class MainWindow : Window
 {
     private Border? _glassFrame;
-    private Rect? _restoreBounds;
 
     public MainWindow()
     {
@@ -53,7 +52,7 @@ public partial class MainWindow : Window
     private void SyncGlassFrame()
     {
         if (_glassFrame is null) return;
-        double radius = GlassMaximized ? 0 : ThemeManager.BlurActive ? 8 : 12;
+        double radius = ThemeManager.BlurActive ? 8 : 12;
         _glassFrame.CornerRadius = new CornerRadius(radius);
         ClipRoot();
     }
@@ -65,61 +64,20 @@ public partial class MainWindow : Window
         RootGrid.Clip = new System.Windows.Media.RectangleGeometry(new Rect(RootGrid.RenderSize), r, r);
     }
 
-    private bool GlassMaximized => _restoreBounds is not null;
-
-    /// <summary>Janela transparente maximizada cobriria a barra de tarefas: preenche só a área de trabalho.</summary>
-    private void ToggleGlassMaximize()
-    {
-        if (_restoreBounds is { } r)
-        {
-            _restoreBounds = null;
-            Left = r.Left; Top = r.Top; Width = r.Width; Height = r.Height;
-            SyncGlassFrame();
-            MaxButton.Content = "\uE922";
-            MaxButton.ToolTip = "Maximizar";
-        }
-        else
-        {
-            _restoreBounds = new Rect(Left, Top, Width, Height);
-            var area = SystemParameters.WorkArea;
-            Left = area.Left; Top = area.Top; Width = area.Width; Height = area.Height;
-            SyncGlassFrame();
-            MaxButton.Content = "\uE923";
-            MaxButton.ToolTip = "Restaurar";
-        }
-        ClipRoot();
-    }
-
     private MainViewModel? Vm => DataContext as MainViewModel;
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
-    private void Maximize_Click(object sender, RoutedEventArgs e)
-    {
-        if (_glassFrame is not null) { ToggleGlassMaximize(); return; }
-        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-    }
-
+    /// <summary>
+    /// O Native não tem tela cheia: é um painel do tamanho de um celular. Duplo clique na barra de título,
+    /// Win + Seta para cima ou arrastar para o topo da tela não maximizam mais.
+    /// </summary>
     protected override void OnStateChanged(EventArgs e)
     {
         base.OnStateChanged(e);
-        if (_glassFrame is not null)
-        {
-            // duplo clique na barra de título: maximiza do nosso jeito
-            if (WindowState == WindowState.Maximized)
-            {
-                WindowState = WindowState.Normal;
-                if (!GlassMaximized) ToggleGlassMaximize();
-            }
-            return;
-        }
-        bool max = WindowState == WindowState.Maximized;
-        // Maximizada sem a moldura do Windows, a janela passa um pouco da tela: compensa a borda.
-        RootGrid.Margin = max ? new Thickness(7) : new Thickness(0);
-        MaxButton.Content = max ? "\uE923" : "\uE922";
-        MaxButton.ToolTip = max ? "Restaurar" : "Maximizar";
+        if (WindowState == WindowState.Maximized) WindowState = WindowState.Normal;
     }
 
     // ------------------------------------------------------------ arrastar arquivos

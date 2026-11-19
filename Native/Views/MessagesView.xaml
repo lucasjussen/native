@@ -27,7 +27,7 @@
             <StackPanel Grid.Row="2" Margin="20,0,20,6">
                 <TextBlock Text="Carregando conversas do iPhone…" Foreground="{DynamicResource LabelSecondary}" FontSize="12"
                            Visibility="{Binding IsLoading, Converter={StaticResource Vis}}"/>
-                <Border Background="{DynamicResource CardBg}" CornerRadius="12" Padding="14,10"
+                <Border Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}" CornerRadius="12" Padding="14,10"
                         Visibility="{Binding HasError, Converter={StaticResource Vis}}">
                     <StackPanel>
                         <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Foreground="{DynamicResource LabelBody}"/>

@@ -34,6 +34,8 @@ public sealed class AppSettings
     public double GlassOpacity { get; set; } = 0.62;
     /// <summary>Desfocar o que está atrás (vidro fosco, Windows 11).</summary>
     public bool GlassBlur { get; set; } = true;
+    /// <summary>Recurso do Windows usado no desfoque (1 acrílico, 2 simples, 3 sistema).</summary>
+    public int GlassEngine { get; set; } = 1;
     public bool MiniMode { get; set; }
     public double? MiniLeft { get; set; }
     public double? MiniTop { get; set; }

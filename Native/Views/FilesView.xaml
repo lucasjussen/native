@@ -5,6 +5,8 @@
     <UserControl.Resources>
         <Style x:Key="Card" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource CardBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardRim}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardRimThickness}"/>
             <Setter Property="CornerRadius" Value="12"/>
         </Style>
         <Style x:Key="SmallIcon" TargetType="Button" BasedOn="{StaticResource IconButton}">

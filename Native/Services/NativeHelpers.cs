@@ -77,13 +77,56 @@ internal static class WindowEffects
             int dark = ThemeManager.IsDark ? 1 : 0;
             DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref dark, sizeof(int));
         }
-        SetAccent(hwnd, on ? ACCENT_ENABLE_BLURBEHIND : ACCENT_DISABLED);
+        SetEngine(hwnd, on);
         if (!on && window.AllowsTransparency) SuppressFrame(window);
     }
 
-    private static void SetAccent(IntPtr hwnd, int state)
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Margins { public int Left, Right, Top, Bottom; }
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref Margins margins);
+
+    private const int ACCENT_ENABLE_ACRYLICBLURBEHIND = 4;
+    private const int DWMWA_SYSTEMBACKDROP_TYPE = 38;
+
+    /// <summary>
+    /// Qual recurso do Windows desenha o desfoque. O Windows 11 se comporta diferente conforme a versão,
+    /// então dá para escolher: 1 = acrílico, 2 = desfoque simples, 3 = fundo do sistema (DWM).
+    /// </summary>
+    public static int BlurEngine { get; set; } = 1;
+
+    private static void SetEngine(IntPtr hwnd, bool on)
     {
-        var accent = new AccentPolicy { AccentState = state };
+        int engine = on ? BlurEngine : 0;
+        // desliga tudo antes, para trocar de motor sem sobrar efeito do anterior
+        SetAccent(hwnd, ACCENT_DISABLED);
+        int none = 1;
+        DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref none, sizeof(int));
+        var zero = new Margins();
+        DwmExtendFrameIntoClientArea(hwnd, ref zero);
+
+        switch (engine)
+        {
+            case 1:
+                // o acrílico precisa de alguma cor; quase transparente, porque o tom quem dá é o Native
+                SetAccent(hwnd, ACCENT_ENABLE_ACRYLICBLURBEHIND, 0x01000000);
+                break;
+            case 2:
+                SetAccent(hwnd, ACCENT_ENABLE_BLURBEHIND);
+                break;
+            case 3:
+                var all = new Margins { Left = -1, Right = -1, Top = -1, Bottom = -1 };
+                DwmExtendFrameIntoClientArea(hwnd, ref all);
+                int acrylic = 3;   // DWMSBT_TRANSIENTWINDOW
+                DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref acrylic, sizeof(int));
+                break;
+        }
+    }
+
+    private static void SetAccent(IntPtr hwnd, int state, uint color = 0)
+    {
+        var accent = new AccentPolicy { AccentState = state, GradientColor = color };
         int size = Marshal.SizeOf(accent);
         IntPtr ptr = Marshal.AllocHGlobal(size);
         try

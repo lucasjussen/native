@@ -55,25 +55,26 @@ public static class ThemeManager
         GlassChanged?.Invoke();
     }
 
+    // Os fundos translúcidos são pincéis "vivos": o controle de transparência só muda a Opacity deles,
+    // e o WPF redesenha na hora — sem trocar recursos nem reler o XAML a cada movimento (era isso que travava).
+    private static readonly System.Collections.Generic.List<System.Windows.Media.Brush> LiveBrushes = new();
+
     public static void SetGlassOpacity(double opacity)
     {
         GlassOpacity = Math.Clamp(opacity, 0.25, 1);
-        if (!Glass) return;
-        // Só troca os três fundos no dicionário que já está aplicado: leve o bastante para arrastar o controle.
-        var glass = Application.Current.Resources.MergedDictionaries.FirstOrDefault(d => d.Source is { } g && g.OriginalString.Contains("Glass"));
-        if (glass is not null) Tint(glass);
+        foreach (var b in LiveBrushes) b.Opacity = GlassOpacity;
     }
 
     private static void Tint(ResourceDictionary glass)
     {
-        var original = new ResourceDictionary { Source = glass.Source };
+        LiveBrushes.Clear();
         foreach (var key in SeeThrough)
-            if (original[key] is System.Windows.Media.Brush b)
+            if (glass[key] is System.Windows.Media.Brush b)
             {
-                var c = b.Clone();
+                var c = b.Clone();          // não congelado: dá para mudar a opacidade depois
                 c.Opacity = GlassOpacity;
-                c.Freeze();
                 glass[key] = c;
+                LiveBrushes.Add(c);
             }
     }
 

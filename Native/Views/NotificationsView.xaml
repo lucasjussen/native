@@ -75,7 +75,7 @@
                                             VerticalAlignment="Bottom" Margin="11,0,11,-6"
                                             Visibility="{Binding HasMore, Converter={StaticResource Vis}}"/>
 
-                                    <Border Background="{DynamicResource CardBg}" CornerRadius="14" Padding="12,11,14,11"
+                                    <Border Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardRim}" BorderThickness="{DynamicResource CardRimThickness}" CornerRadius="14" Padding="12,11,14,11"
                                             Cursor="Hand" MouseLeftButtonUp="Group_Click">
                                         <StackPanel>
                                             <ItemsControl ItemsSource="{Binding VisibleItems}">

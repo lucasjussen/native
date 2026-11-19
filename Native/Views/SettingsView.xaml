@@ -15,6 +15,8 @@
         </Style>
         <Style x:Key="Card" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource CardBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardRim}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardRimThickness}"/>
             <Setter Property="CornerRadius" Value="12"/>
         </Style>
     </UserControl.Resources>
@@ -44,18 +46,44 @@
             <Border Style="{StaticResource Card}" Margin="0,8,0,0" Padding="14,10"
                     Visibility="{Binding GlassMode, Converter={StaticResource Vis}}">
                 <StackPanel>
+                    <Grid Visibility="{Binding BlurSupported, Converter={StaticResource Vis}}">
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,56,0">
+                            <TextBlock Text="Vidro fosco" Style="{StaticResource SettingLabel}"/>
+                            <TextBlock Text="Desfoca o que está atrás. Desligado: transparente e nítido" FontSize="12"
+                                       Foreground="{DynamicResource LabelSecondary}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding GlassBlur}"/>
+                    </Grid>
+                    <Border Padding="2" CornerRadius="8" Background="{DynamicResource SegmentTrack}" Margin="0,10,0,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding GlassBlur}" Value="True"/>
+                                            <Condition Binding="{Binding BlurSupported}" Value="True"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <UniformGrid Columns="3">
+                            <RadioButton Style="{StaticResource Segment}" Content="Acrílico" IsChecked="{Binding IsEngine1}"/>
+                            <RadioButton Style="{StaticResource Segment}" Content="Desfoque" IsChecked="{Binding IsEngine2}"/>
+                            <RadioButton Style="{StaticResource Segment}" Content="Sistema" IsChecked="{Binding IsEngine3}"/>
+                        </UniformGrid>
+                    </Border>
+                    <TextBlock Text="Cada Windows aceita um tipo de desfoque. Se o fundo ficar preto em vez de embaçado, escolha outro."
+                               FontSize="11.5" Foreground="{DynamicResource LabelTertiary}" TextWrapping="Wrap" Margin="0,6,0,0"
+                               Visibility="{Binding GlassBlur, Converter={StaticResource Vis}}"/>
+                    <Border Height="1" Background="{DynamicResource Separator}" Margin="0,12,0,10"
+                            Visibility="{Binding BlurSupported, Converter={StaticResource Vis}}"/>
                     <Grid>
                         <TextBlock Text="Transparência" Style="{StaticResource SettingLabel}"/>
                         <TextBlock Text="{Binding GlassOpacityText}" FontSize="12" HorizontalAlignment="Right"
                                    VerticalAlignment="Center" Foreground="{DynamicResource LabelSecondary}"/>
-                    </Grid>
-                    <Grid Margin="0,0,0,10" Visibility="{Binding BlurSupported, Converter={StaticResource Vis}}">
-                        <StackPanel VerticalAlignment="Center" Margin="0,0,56,0">
-                            <TextBlock Text="Vidro fosco" Style="{StaticResource SettingLabel}"/>
-                            <TextBlock Text="Desfoca o que está atrás. Desligado: transparente, nítido" FontSize="12"
-                                       Foreground="{DynamicResource LabelSecondary}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                        <CheckBox Style="{StaticResource Switch}" HorizontalAlignment="Right" IsChecked="{Binding GlassBlur}"/>
                     </Grid>
                     <!-- para a direita = mais transparente -->
                     <Slider Style="{StaticResource MediaSlider}" Margin="0,8,0,2" Minimum="0" Maximum="0.75"

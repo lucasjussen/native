@@ -83,6 +83,7 @@ public partial class App : Application
         Log.Info("App", $"Iniciando {typeof(App).Assembly.GetName().Version?.ToString(3)} no Windows {Environment.OSVersion.Version}");
 
         var settings = AppSettings.Load();
+        WindowEffects.BlurEngine = Math.Clamp(settings.GlassEngine, 1, 3);
         ThemeManager.Initialize(settings.Theme, settings.Glass, settings.GlassOpacity, settings.GlassBlur);
 
         var catalog = new AppCatalog(settings);
