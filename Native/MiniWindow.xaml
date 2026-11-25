@@ -18,6 +18,44 @@
             <Setter Property="Height" Value="28"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>
+        <!-- Uma notificação no jeito do iPhone: ícone do app, título em negrito com a hora à direita e o
+             texto em até duas linhas. Todas iguais, de qualquer app; o "x" aparece no lugar da hora ao passar o mouse. -->
+        <DataTemplate x:Key="NotifRow">
+            <Grid x:Name="Row" Background="Transparent">
+                <Grid Margin="0,1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <c:AppIconView App="{Binding App}" Width="32" Height="32" VerticalAlignment="Top" Margin="0,1,0,0"/>
+                    <StackPanel Grid.Column="1" Margin="10,0,2,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock x:Name="Time" Grid.Column="1" Text="{Binding TimeLabel}" FontSize="11.5" Margin="8,1,0,0"
+                                       Foreground="{DynamicResource LabelSecondary}"/>
+                            <!-- ao passar o mouse a hora dá lugar ao "x" -->
+                            <Button x:Name="Dismiss" Grid.Column="1" Style="{StaticResource CircleButton}" Width="20" Height="20"
+                                    Content="&#xE8BB;" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-1,0,0"
+                                    Visibility="Hidden" Click="Dismiss_Click" ToolTip="Limpar (também no iPhone)"/>
+                        </Grid>
+                        <TextBlock Text="{Binding Message}" FontSize="12.5" Foreground="{DynamicResource LabelBody}"
+                                   TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="34" LineHeight="17"
+                                   LineStackingStrategy="BlockLineHeight" Margin="0,1,0,0"
+                                   Visibility="{Binding HasMessage, Converter={StaticResource Vis}}"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+            <DataTemplate.Triggers>
+                <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Dismiss" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="Time" Property="Visibility" Value="Hidden"/>
+                </Trigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid Margin="{DynamicResource FloatMargin}">
@@ -173,40 +211,17 @@
                         <TextBlock Text="Sem notificações" Margin="9,0,0,0" FontSize="12.5" Foreground="{DynamicResource LabelSecondary}"/>
                     </StackPanel>
 
-                    <ItemsControl ItemsSource="{Binding RecentNotifications}" Margin="0,4,0,4"
+                    <ItemsControl ItemsSource="{Binding RecentNotifications}" Margin="0,8,0,4"
                                   Visibility="{Binding StackNotifications, Converter={StaticResource NotVis}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid x:Name="Row" Background="Transparent" Cursor="Hand" MouseLeftButtonUp="Notification_Click">
-                                    <Border x:Name="Hover" Margin="6,0" CornerRadius="10" Background="{DynamicResource TitleHover}" Opacity="0"/>
-                                    <Grid Margin="14,7,8,7">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <c:AppIconView App="{Binding App}" Width="28" Height="28" VerticalAlignment="Top" Margin="0,1,0,0"/>
-                                        <StackPanel Grid.Column="1" Margin="10,0,4,0">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="12.5" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding TimeLabel}" FontSize="11" Margin="6,1,0,0"
-                                                           Foreground="{DynamicResource LabelSecondary}"/>
-                                            </Grid>
-                                            <TextBlock Text="{Binding Message}" FontSize="12" Foreground="{DynamicResource LabelBody}"
-                                                       TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
-                                        </StackPanel>
-                                        <Button x:Name="Dismiss" Grid.Column="2" Style="{StaticResource CircleButton}" Content="&#xE8BB;"
-                                                VerticalAlignment="Center" Visibility="Hidden" Click="Dismiss_Click" ToolTip="Limpar (também no iPhone)"/>
-                                    </Grid>
-                                </Grid>
+                                <Border x:Name="Card" Margin="10,0,10,6" Padding="11,9,11,9" CornerRadius="14"
+                                        Background="{DynamicResource NotifBg}" Cursor="Hand" MouseLeftButtonUp="Notification_Click">
+                                    <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource NotifRow}"/>
+                                </Border>
                                 <DataTemplate.Triggers>
-                                    <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Hover" Property="Opacity" Value="1"/>
-                                        <Setter TargetName="Dismiss" Property="Visibility" Value="Visible"/>
+                                    <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Card" Property="Background" Value="{DynamicResource NotifHover}"/>
                                     </Trigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
@@ -220,13 +235,13 @@
                             <DataTemplate>
                                 <Grid x:Name="Stack" Margin="10,0,10,8" Background="Transparent">
                                     <!-- cartões empilhados atrás -->
-                                    <Border Background="{DynamicResource CardLayer2}" CornerRadius="12" Height="20"
+                                    <Border Background="{DynamicResource NotifLayer2}" CornerRadius="12" Height="20"
                                             VerticalAlignment="Bottom" Margin="18,0,18,-8"
                                             Visibility="{Binding ShowSecondLayer, Converter={StaticResource Vis}}"/>
-                                    <Border Background="{DynamicResource CardLayer1}" CornerRadius="12" Height="20"
+                                    <Border Background="{DynamicResource NotifLayer1}" CornerRadius="13" Height="20"
                                             VerticalAlignment="Bottom" Margin="9,0,9,-4"
                                             Visibility="{Binding HasMore, Converter={StaticResource Vis}}"/>
-                                    <Border x:Name="Face" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource GlassRim}" BorderThickness="{DynamicResource GlassRimThickness}" CornerRadius="12" Padding="10,8,8,8"
+                                    <Border x:Name="Face" Background="{DynamicResource NotifBg}" CornerRadius="14" Padding="11,9,11,9"
                                             Cursor="Hand" MouseLeftButtonUp="Stack_Click">
                                         <StackPanel>
                                             <!-- cabeçalho da pilha aberta -->
@@ -240,34 +255,7 @@
                                             <ItemsControl ItemsSource="{Binding VisibleItems}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Grid x:Name="Row" Background="Transparent" Margin="0,2">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <c:AppIconView App="{Binding App}" Width="28" Height="28" VerticalAlignment="Top" Margin="0,1,0,0"/>
-                                                            <StackPanel Grid.Column="1" Margin="10,0,4,0">
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="12.5" TextTrimming="CharacterEllipsis"/>
-                                                                    <TextBlock Grid.Column="1" Text="{Binding TimeLabel}" FontSize="11" Margin="6,1,0,0"
-                                                                               Foreground="{DynamicResource LabelSecondary}"/>
-                                                                </Grid>
-                                                                <TextBlock Text="{Binding Message}" FontSize="12" Foreground="{DynamicResource LabelBody}"
-                                                                           TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
-                                                            </StackPanel>
-                                                            <Button x:Name="Dismiss" Grid.Column="2" Style="{StaticResource CircleButton}" Content="&#xE8BB;"
-                                                                    VerticalAlignment="Center" Visibility="Hidden" Click="Dismiss_Click" ToolTip="Limpar (também no iPhone)"/>
-                                                        </Grid>
-                                                        <DataTemplate.Triggers>
-                                                            <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="Dismiss" Property="Visibility" Value="Visible"/>
-                                                            </Trigger>
-                                                        </DataTemplate.Triggers>
+                                                        <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource NotifRow}" Margin="0,3"/>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
@@ -284,7 +272,7 @@
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <Trigger SourceName="Stack" Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Face" Property="Background" Value="{DynamicResource CardHover}"/>
+                                        <Setter TargetName="Face" Property="Background" Value="{DynamicResource NotifHover}"/>
                                     </Trigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>

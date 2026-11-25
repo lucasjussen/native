@@ -1,5 +1,10 @@
 # Histórico de versões
 
+## 1.6.3
+
+- **Notificações do Mini no jeito do iPhone:** cada uma num cartão próprio, um tom acima do fundo (antes o cartão tinha a mesma cor do Mini e sumia); ícone do app maior, título em negrito com a hora à direita e o texto em até duas linhas em vez de cortar no meio da frase.
+- Todas iguais, de qualquer app, com ou sem pilha. O "x" para limpar aparece no lugar da hora ao passar o mouse.
+
 ## 1.6.2
 
 - **Mini Native não passa mais da barra de tarefas:** o cartão fica sempre dentro da área útil do monitor em que está (não só do principal), mesmo se a barra mudar de tamanho/lugar ou a resolução mudar.

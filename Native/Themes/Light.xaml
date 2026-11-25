@@ -63,4 +63,9 @@
     <Thickness x:Key="CardRimThickness">0</Thickness>
     <SolidColorBrush x:Key="GlassRim" Color="Transparent"/>
     <Thickness x:Key="GlassRimThickness">0</Thickness>
+    <!-- cartão de notificação (Mini): um tom acima do fundo, como no iPhone -->
+    <SolidColorBrush x:Key="NotifBg" Color="#0D000000"/>
+    <SolidColorBrush x:Key="NotifHover" Color="#14000000"/>
+    <SolidColorBrush x:Key="NotifLayer1" Color="#09000000"/>
+    <SolidColorBrush x:Key="NotifLayer2" Color="#06000000"/>
 </ResourceDictionary>
