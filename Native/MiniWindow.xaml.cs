@@ -31,36 +31,79 @@ public partial class MiniWindow : Window
         _vm = vm;
         DataContext = vm;
         WindowEffects.RegisterGlass(this);
-        SourceInitialized += (_, _) => WindowEffects.ApplyFrame(this, ThemeManager.IsDark);
+        SourceInitialized += (_, _) =>
+        {
+            WindowEffects.ApplyFrame(this, ThemeManager.IsDark);
+            // Fica em segundo plano de verdade: fora do Alt+Tab e da barra de tarefas, e clicar nele
+            // não tira o foco do que você está fazendo (os botões funcionam do mesmo jeito).
+            WindowEffects.MakeNonActivating(this);
+        };
         Loaded += (_, _) => PlaceOnScreen();
         LocationChanged += (_, _) => { if (IsLoaded) { _vm.MiniLeft = Math.Round(Left); _vm.MiniTop = Math.Round(Top); } };
         SizeChanged += (_, _) => KeepInside();
-        // Solto (sem alfinete) ele pode ficar atrás de outras janelas: aparece na barra de tarefas para achar.
-        ShowInTaskbar = !vm.MiniPinned;
-        vm.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(MainViewModel.MiniPinned)) ShowInTaskbar = !vm.MiniPinned; };
+        // monitor trocado, resolução nova ou barra de tarefas mudou de lugar/tamanho
+        Microsoft.Win32.SystemEvents.DisplaySettingsChanged += OnDisplayChanged;
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnDisplayChanged;
+        Closed += (_, _) =>
+        {
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= OnDisplayChanged;
+            Microsoft.Win32.SystemEvents.UserPreferenceChanged -= OnDisplayChanged;
+        };
     }
+
+    private void OnDisplayChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(KeepInside);
+
+    /// <summary>Margem transparente em volta do cartão (sombra). Com o vidro fosco ela é zero.</summary>
+    private Thickness Shadow => (Content as FrameworkElement)?.Margin ?? new Thickness(0);
+
+    /// <summary>Distância que ele "gruda" nas bordas da tela e na barra de tarefas.</summary>
+    private const double SnapDistance = 24, Gap = 8;
 
     private void PlaceOnScreen()
     {
-        var area = SystemParameters.WorkArea;
-        Left = _vm.MiniLeft ?? area.Right - ActualWidth - 4;
-        Top = _vm.MiniTop ?? area.Top + 4;
+        var area = WindowEffects.WorkAreaOf(this);
+        var m = Shadow;
+        // primeira vez: canto de baixo à direita, encostado na barra de tarefas
+        Left = _vm.MiniLeft ?? area.Right - ActualWidth + m.Right - Gap;
+        Top = _vm.MiniTop ?? area.Bottom - ActualHeight + m.Bottom - Gap;
         KeepInside();
     }
 
-    /// <summary>Monitor trocou ou a janela cresceu: traz de volta para dentro da tela.</summary>
+    /// <summary>
+    /// O cartão nunca passa da área útil da tela: não cobre a barra de tarefas nem sai pela borda.
+    /// (Só a sombra transparente pode encostar além da linha.)
+    /// </summary>
     private void KeepInside()
     {
         if (!IsLoaded) return;
-        var area = SystemParameters.WorkArea;
-        Left = Math.Clamp(Left, area.Left - 12, Math.Max(area.Left, area.Right - ActualWidth + 12));
-        Top = Math.Clamp(Top, area.Top - 8, Math.Max(area.Top, area.Bottom - ActualHeight + 16));
+        var area = WindowEffects.WorkAreaOf(this);
+        var m = Shadow;
+        double minLeft = area.Left - m.Left, maxLeft = area.Right - ActualWidth + m.Right;
+        double minTop = area.Top - m.Top, maxTop = area.Bottom - ActualHeight + m.Bottom;
+        Left = Math.Clamp(Left, minLeft, Math.Max(minLeft, maxLeft));
+        Top = Math.Clamp(Top, minTop, Math.Max(minTop, maxTop));
+    }
+
+    /// <summary>Soltou perto de uma borda (ou da barra de tarefas): encaixa certinho, com um respiro.</summary>
+    private void Snap()
+    {
+        var area = WindowEffects.WorkAreaOf(this);
+        var m = Shadow;
+        double cardLeft = Left + m.Left, cardTop = Top + m.Top;
+        double cardRight = Left + ActualWidth - m.Right, cardBottom = Top + ActualHeight - m.Bottom;
+
+        if (area.Bottom - cardBottom < SnapDistance) Top = area.Bottom - Gap - (ActualHeight - m.Bottom);
+        else if (cardTop - area.Top < SnapDistance) Top = area.Top + Gap - m.Top;
+        if (area.Right - cardRight < SnapDistance) Left = area.Right - Gap - (ActualWidth - m.Right);
+        else if (cardLeft - area.Left < SnapDistance) Left = area.Left + Gap - m.Left;
+        KeepInside();
     }
 
     private void Drag(object sender, MouseButtonEventArgs e)
     {
         if (e.OriginalSource is DependencyObject d && IsInteractive(d)) return;
-        try { DragMove(); } catch (InvalidOperationException) { }
+        try { DragMove(); } catch (InvalidOperationException) { return; }
+        Snap();   // DragMove só volta quando o botão é solto
     }
 
     private static bool IsInteractive(DependencyObject d)

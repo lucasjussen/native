@@ -186,6 +186,35 @@ internal static class WindowEffects
         DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ref border, sizeof(int));
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RectI { public int Left, Top, Right, Bottom; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MonitorInfo { public int Size; public RectI Monitor; public RectI Work; public uint Flags; }
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
+
+    [DllImport("user32.dll")]
+    private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
+
+    /// <summary>
+    /// Área útil (sem a barra de tarefas) do monitor onde a janela está, em unidades do WPF.
+    /// SystemParameters.WorkArea só conhece o monitor principal.
+    /// </summary>
+    public static Rect WorkAreaOf(Window window)
+    {
+        var hwnd = new WindowInteropHelper(window).Handle;
+        var source = PresentationSource.FromVisual(window);
+        if (hwnd == IntPtr.Zero || source?.CompositionTarget is null) return SystemParameters.WorkArea;
+        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
+        if (!GetMonitorInfo(MonitorFromWindow(hwnd, 2 /* mais próximo */), ref info)) return SystemParameters.WorkArea;
+        var m = source.CompositionTarget.TransformFromDevice;
+        var tl = m.Transform(new Point(info.Work.Left, info.Work.Top));
+        var br = m.Transform(new Point(info.Work.Right, info.Work.Bottom));
+        return new Rect(tl, br);
+    }
+
     /// <summary>Janela que aparece sem roubar o foco nem ocupar o Alt+Tab (para os banners).</summary>
     public static void MakeNonActivating(Window window) => SetActivatable(window, false);
 

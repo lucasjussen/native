@@ -1,5 +1,11 @@
 # Histórico de versões
 
+## 1.6.2
+
+- **Mini Native não passa mais da barra de tarefas:** o cartão fica sempre dentro da área útil do monitor em que está (não só do principal), mesmo se a barra mudar de tamanho/lugar ou a resolução mudar.
+- **Encaixe:** soltou a menos de 24 px de uma borda ou da barra de tarefas, ele gruda nela com um respiro de 8 px. Primeira abertura: canto de baixo à direita, junto da barra.
+- **Segundo plano de verdade:** o Mini saiu do Alt+Tab e da barra de tarefas (também sem o alfinete), e clicar nele não tira o foco do que você está fazendo. Para achar: ícone na bandeja ou Ctrl + Alt + N.
+
 ## 1.6.1
 
 - **Barras que seguem o mouse:** a bolinha das barras (transparência, música, volume) tinha tamanho zero, então não dava para "pegar e arrastar" — a barra só pulava. Agora o clique prende o mouse na barra e ela acompanha o arraste do começo ao fim, mesmo saindo de cima dela.
