@@ -105,15 +105,37 @@ public sealed class AppSettings
     public void Save()
     {
         if (ReadOnly) return;
+        _saveTimer?.Stop();
         try
         {
             Directory.CreateDirectory(Folder);
-            File.WriteAllText(FilePath, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+            // Grava num arquivo temporário e troca de uma vez: se o PC desligar no meio, o arquivo antigo
+            // continua inteiro (antes um arquivo pela metade zerava todos os ajustes, inclusive o pareamento).
+            var tmp = FilePath + ".tmp";
+            File.WriteAllText(tmp, JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+            File.Move(tmp, FilePath, overwrite: true);
         }
         catch
         {
             // Sem permissão de escrita: segue sem salvar.
         }
+    }
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    private System.Windows.Threading.DispatcherTimer? _saveTimer;
+
+    /// <summary>
+    /// Salva daqui a meio segundo, juntando várias mudanças seguidas numa gravação só
+    /// (arrastar o Mini ou uma barra mudava o valor dezenas de vezes por segundo).
+    /// </summary>
+    public void SaveSoon()
+    {
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher is null) { Save(); return; }
+        _saveTimer ??= new System.Windows.Threading.DispatcherTimer(TimeSpan.FromMilliseconds(500),
+            System.Windows.Threading.DispatcherPriority.Background, (_, _) => Save(), dispatcher);
+        _saveTimer.Stop();
+        _saveTimer.Start();
     }
 }
 

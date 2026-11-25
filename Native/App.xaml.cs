@@ -82,7 +82,7 @@ public partial class App : Application
         Log.Prune();
         Log.Info("App", $"Iniciando {typeof(App).Assembly.GetName().Version?.ToString(3)} no Windows {Environment.OSVersion.Version}");
 
-        var settings = AppSettings.Load();
+        var settings = _settings = AppSettings.Load();
         WindowEffects.BlurEngine = Math.Clamp(settings.GlassEngine, 1, 3);
         ThemeManager.Initialize(settings.Theme, settings.Glass, settings.GlassOpacity, settings.GlassBlur);
 
@@ -523,9 +523,12 @@ public partial class App : Application
         Shutdown();
     }
 
+    private AppSettings? _settings;
+
     protected override void OnExit(ExitEventArgs e)
     {
         Log.Info("App", "Encerrando");
+        _settings?.Save();   // grava o que estava esperando (posição do Mini, transparência)
         _cts.Cancel();
         _vm?.StopMirror();
         _hotKey?.Dispose();

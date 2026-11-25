@@ -1,0 +1,67 @@
+# Gera o Native pronto para baixar: ao criar uma tag "v1.2.3", o GitHub compila no Windows,
+# roda os testes e publica um .zip com o Native.exe (não precisa instalar .NET nem nada) na página Releases.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Testes
+        run: dotnet run --project Native.Tests -c Release
+
+      - name: Compilar (um .exe só, com o .NET embutido)
+        run: >
+          dotnet publish Native/Native.csproj -c Release -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -o publish
+
+      - name: Empacotar
+        shell: pwsh
+        run: |
+          $versao = "${{ github.ref_name }}"
+          if (-not $versao.StartsWith("v")) { $versao = "dev" }
+          New-Item -ItemType Directory pacote | Out-Null
+          Copy-Item publish/Native.exe pacote/
+          Copy-Item LICENSE pacote/
+          @"
+          Native $versao
+
+          1. Extraia esta pasta onde quiser (ex.: Documentos).
+          2. Abra o Native.exe.
+          3. No iPhone: Ajustes > Bluetooth > pareie com este PC e permita as notificações.
+
+          Se o Windows mostrar "O Windows protegeu o computador", clique em "Mais informações" > "Executar assim mesmo"
+          (o app ainda não é assinado digitalmente).
+          "@ | Set-Content pacote/LEIA-ME.txt -Encoding utf8
+          Compress-Archive pacote/* "Native-$versao-windows-x64.zip"
+
+      - name: Publicar na página Releases
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $versao = "${{ github.ref_name }}"
+          gh release create $versao "Native-$versao-windows-x64.zip" --title "Native $versao" --notes "Baixe o .zip, extraia e abra o Native.exe. Novidades no CHANGELOG.md."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Native-windows-x64
+          path: "*.zip"

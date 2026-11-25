@@ -525,11 +525,7 @@ public sealed class MainViewModel : ObservableObject
             if (Math.Abs(_settings.GlassOpacity - value) < 0.0005) return;
             _settings.GlassOpacity = value;
             ThemeManager.SetGlassOpacity(value);
-            // grava só quando o controle para de mexer (gravar a cada pixel arrastado engasgava)
-            _glassSave ??= new System.Windows.Threading.DispatcherTimer(TimeSpan.FromMilliseconds(400),
-                System.Windows.Threading.DispatcherPriority.Background, (_, _) => { _glassSave!.Stop(); _settings.Save(); },
-                Application.Current.Dispatcher);
-            _glassSave.Stop(); _glassSave.Start();
+            _settings.SaveSoon();   // grava só quando o controle para de mexer
             Raise(); Raise(nameof(GlassOpacityText));
         }
     }
@@ -561,8 +557,6 @@ public sealed class MainViewModel : ObservableObject
         get => 1 - GlassOpacity;
         set => GlassOpacity = 1 - value;   // sem Raise aqui: a barra é quem manda enquanto arrasta
     }
-
-    private System.Windows.Threading.DispatcherTimer? _glassSave;
 
     public string GlassOpacityText => $"{Math.Round((1 - GlassOpacity) * 100)}% transparente";
 
@@ -1051,8 +1045,8 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public bool StartInMiniMode => _settings.MiniMode;
-    public double? MiniLeft { get => _settings.MiniLeft; set { _settings.MiniLeft = value; _settings.Save(); } }
-    public double? MiniTop { get => _settings.MiniTop; set { _settings.MiniTop = value; _settings.Save(); } }
+    public double? MiniLeft { get => _settings.MiniLeft; set { _settings.MiniLeft = value; _settings.SaveSoon(); } }
+    public double? MiniTop { get => _settings.MiniTop; set { _settings.MiniTop = value; _settings.SaveSoon(); } }
 
     private void SendMedia(MediaCommand command) => _ = _client.SendMediaCommandAsync(command);
 

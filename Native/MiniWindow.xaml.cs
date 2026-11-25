@@ -40,7 +40,7 @@ public partial class MiniWindow : Window
         };
         Loaded += (_, _) => PlaceOnScreen();
         LocationChanged += (_, _) => { if (IsLoaded) { _vm.MiniLeft = Math.Round(Left); _vm.MiniTop = Math.Round(Top); } };
-        SizeChanged += (_, _) => KeepInside();
+        SizeChanged += OnSizeChanged;
         // monitor trocado, resolução nova ou barra de tarefas mudou de lugar/tamanho
         Microsoft.Win32.SystemEvents.DisplaySettingsChanged += OnDisplayChanged;
         Microsoft.Win32.SystemEvents.UserPreferenceChanged += OnDisplayChanged;
@@ -52,6 +52,25 @@ public partial class MiniWindow : Window
     }
 
     private void OnDisplayChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(KeepInside);
+
+    /// <summary>
+    /// A altura muda sozinha (conectou/desconectou, começou a tocar música, chegou notificação).
+    /// O Windows mantém o topo parado e a janela cresce para baixo — encostada na barra de tarefas, ela
+    /// era empurrada para cima e não voltava mais. Agora, se o Mini está na metade de baixo da tela, quem
+    /// fica parado é a borda de baixo: ele cresce e encolhe para cima, sempre colado onde você deixou.
+    /// </summary>
+    private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (IsLoaded && e.HeightChanged && e.PreviousSize.Height > 0)
+        {
+            var area = WindowEffects.WorkAreaOf(this);
+            double oldBottom = Top + e.PreviousSize.Height;
+            double oldCenter = Top + e.PreviousSize.Height / 2;
+            if (oldCenter > area.Top + area.Height / 2)
+                Top = oldBottom - e.NewSize.Height;
+        }
+        KeepInside();
+    }
 
     /// <summary>Margem transparente em volta do cartão (sombra). Com o vidro fosco ela é zero.</summary>
     private Thickness Shadow => (Content as FrameworkElement)?.Margin ?? new Thickness(0);

@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## 1.6.4
+
+- **Mini subindo sozinho:** ao conectar/desconectar o iPhone (ou começar uma música, chegar notificação) a altura do Mini muda; o Windows crescia a janela para baixo e, encostada na barra de tarefas, ela era empurrada para cima e não voltava. Agora, na metade de baixo da tela, quem fica parado é a borda de baixo: ele cresce e encolhe para cima, colado onde você deixou.
+- **Arrastar o Mini sem engasgar:** a posição era gravada no disco a cada pixel arrastado (duas vezes). Agora grava uma vez, meio segundo depois de parar, e na saída do app.
+- **Ajustes à prova de queda de energia:** a gravação era direta no arquivo; se o PC desligasse no meio, o arquivo ficava pela metade e todos os ajustes (inclusive o pareamento do iPhone) voltavam ao padrão. Agora grava num temporário e troca de uma vez.
+- **Download pronto:** ao criar uma tag de versão no GitHub, ele compila no Windows, roda os testes e publica um .zip com o Native.exe (com o .NET embutido) na página Releases.
+
 ## 1.6.3
 
 - **Notificações do Mini no jeito do iPhone:** cada uma num cartão próprio, um tom acima do fundo (antes o cartão tinha a mesma cor do Mini e sumia); ícone do app maior, título em negrito com a hora à direita e o texto em até duas linhas em vez de cortar no meio da frase.
